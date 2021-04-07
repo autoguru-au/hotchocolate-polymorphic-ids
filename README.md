@@ -44,7 +44,7 @@ query {
 
 ### What's supported?
 
-IDs that are internally represented with `int`, `Guid`, `long` or `string`s, nullable or not. 
+IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents. 
 You can opt-out of each's support as required.
 
 For integer-based IDs, you can pass `"1"` or `1` and both will be accepted.
