@@ -35,54 +35,57 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             var intId = 1;
             var stringId = "abc";
             var guidId = new Guid("26a2dc8f-4dab-408c-88c6-523a0a89a2b5");
+            var services = new ServiceCollection();
+            var builder = services
+                .AddGraphQL()
+                .AddQueryType<Query>()
+                .AddType<FooPayload>()
+                .AddPolymorphicIds(isEnabled
+                    ? default
+                    : new PolymorphicIdsOptions
+                    {
+                        HandleGuidIds = false,
+                        HandleIntIds = false,
+                        HandleLongIds = false,
+                        HandleStringIds = false,
+                    })
+                .ModifyRequestOptions(o => o.ExecutionTimeout = TimeSpan.FromMinutes(1));
+            var executor = await builder
+                .BuildRequestExecutorAsync();
 
             // act
-            var result =
-                await SchemaBuilder.New()
-                    .AddQueryType<Query>()
-                    .AddType<FooPayload>()
-                    .AddPolymorphicIds(isEnabled
-                        ? default
-                        : new PolymorphicIdsOptions
-                        {
-                            HandleGuidIds = false,
-                            HandleIntIds = false,
-                            HandleLongIds = false,
-                            HandleStringIds = false,
-                        })
-                    .Create()
-                    .MakeExecutable(_executorOptions)
-                    .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
-                                @"query foo (
-                                    $intId: ID!
-                                    $nullIntId: ID = null
-                                    $stringId: ID!
-                                    $nullStringId: ID = null
-                                    $guidId: ID!
-                                    $nullGuidId: ID = null)
-                                {
-                                    intId(id: $intId)
-                                    nullableIntId(id: $intId)
-                                    nullableIntIdGivenNull: nullableIntId(id: $nullIntId)
-                                    intIdList(id: [$intId])
-                                    # TODO: nullableIntIdList(id: [$intId, $nullIntId])
-                                    stringId(id: $stringId)
-                                    nullableStringId(id: $stringId)
-                                    nullableStringIdGivenNull: nullableStringId(id: $nullStringId)
-                                    stringIdList(id: [$stringId])
-                                    # TODO: nullableStringIdList(id: [$stringId, $nullStringId])
-                                    guidId(id: $guidId)
-                                    nullableGuidId(id: $guidId)
-                                    nullableGuidIdGivenNull: nullableGuidId(id: $nullGuidId)
-                                    guidIdList(id: [$guidId $guidId])
-                                    # TODO: nullableGuidIdList(id: [$guidId $nullGuidId $guidId])
-                                }")
-                            .SetVariableValue("intId", intId)
-                            .SetVariableValue("stringId", stringId)
-                            .SetVariableValue("guidId", guidId.ToString())
-                            .Create());
+            var result = await executor
+                .ExecuteAsync(
+                    QueryRequestBuilder.New()
+                        .SetQuery(
+                            @"query foo (
+                                $intId: ID!
+                                $nullIntId: ID = null
+                                $stringId: ID!
+                                $nullStringId: ID = null
+                                $guidId: ID!
+                                $nullGuidId: ID = null)
+                            {
+                                intId(id: $intId)
+                                nullableIntId(id: $intId)
+                                nullableIntIdGivenNull: nullableIntId(id: $nullIntId)
+                                intIdList(id: [$intId])
+                                # TODO: nullableIntIdList(id: [$intId, $nullIntId])
+                                stringId(id: $stringId)
+                                nullableStringId(id: $stringId)
+                                nullableStringIdGivenNull: nullableStringId(id: $nullStringId)
+                                stringIdList(id: [$stringId])
+                                # TODO: nullableStringIdList(id: [$stringId, $nullStringId])
+                                guidId(id: $guidId)
+                                nullableGuidId(id: $guidId)
+                                nullableGuidIdGivenNull: nullableGuidId(id: $nullGuidId)
+                                guidIdList(id: [$guidId $guidId])
+                                # TODO: nullableGuidIdList(id: [$guidId $nullGuidId $guidId])
+                            }")
+                        .SetVariableValue("intId", intId)
+                        .SetVariableValue("stringId", stringId)
+                        .SetVariableValue("guidId", guidId.ToString())
+                        .Create());
 
             // assert
             var verifySettings = new VerifySettings();
