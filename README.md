@@ -5,7 +5,7 @@
 	  <a href="https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds"><img alt="Nuget version" src="https://img.shields.io/nuget/v/AutoGuru.HotChocolate.PolymorphicIds"></a>
 	  <a href="https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds"><img alt="NuGet downloads" src="https://img.shields.io/nuget/dt/AutoGuru.HotChocolate.PolymorphicIds"></a>	  
       <a href="https://codecov.io/gh/autoguru-au/hotchocolate-extensions/PolymorphicIds">
-        <img src="https://codecov.io/gh/autoguru-au/hotchocolate-extensions/branch/main/graph/badge.svg?token=95TCHXVJTS"/>
+        <img src="https://codecov.io/gh/autoguru-au/hotchocolate-polymorphic-ids/branch/main/graph/badge.svg?token=95TCHXVJTS"/>
       </a>    
   </p>
 </div>
