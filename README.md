@@ -72,3 +72,5 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
     HandleStringIds = false,  // true by default
 });
 ```
+
+Note: Requires HotChocolate v11.1+

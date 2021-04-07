@@ -1,16 +1,16 @@
 <Project>
 
-  <PropertyGroup>    
+  <PropertyGroup>
     <Product>Polymorphic IDs.</Product>
+    <Description>Polymorphic Relay IDs for HotChocolate</Description>
     <PackageTags>GraphQL HotChocolate Relay</PackageTags>
-    <Version>1.0.0-rc.1</Version>
-	
-	<LangVersion>latest</LangVersion>
-    <PackageProjectUrl>https://github.com/autoguru-au/hotchocolate-extensions</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/autoguru-au/hotchocolate-extensions</RepositoryUrl>
+    <Version>1.0.0-rc.2</Version>
+
+    <PackageProjectUrl>https://github.com/autoguru-au/hotchocolate-polymorphic-ids</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/autoguru-au/hotchocolate-polymorphic-ids</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Copyright>Copyright &#169; 2021 AutoGuru</Copyright>
-    <Authors>autoguru,benmccallum</Authors>
+    <Authors>Ben McCallum</Authors>
     <Company>AutoGuru</Company>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
@@ -21,7 +21,7 @@
 
     <TargetFrameworks>net5.0; netcoreapp3.1; netstandard2.0</TargetFrameworks>
     <TargetFrameworks Condition="$(MSBuildProjectName.EndsWith('Tests'))">net5.0; netcoreapp3.1</TargetFrameworks>
-	
+
   </PropertyGroup>
-  
+
 </Project>
