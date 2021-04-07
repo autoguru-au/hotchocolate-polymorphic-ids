@@ -7,8 +7,7 @@ on:
       - '*.sln'
       - '*.props'
       - '**/*.yml'
-    paths-ignore:
-      - '**/*.md'
+      - '!**/*.md'
       
   pull_request: {}
 
