@@ -1,0 +1,15 @@
+{
+  "data": {
+    "foo": {
+      "someId": "QmFyCmQx",
+      "someNullableId": "QmFyCmQx",
+      "someIds": [
+        "QmFyCmkx"
+      ],
+      "someNullableIds": [
+        "QmFyCmkx"
+      ],
+      "raw": "SomeId: 1, SomeIds: [1], SomeNullableId: 1, SomeNullableIds: [1]"
+    }
+  }
+}

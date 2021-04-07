@@ -1,0 +1,19 @@
+{
+  result: 
+{
+  "data": {
+    "foo": {
+      "someId": "QmFyCmQx",
+      "someNullableId": null,
+      "someIds": [
+        "QmFyCmkx"
+      ],
+      "someNullableIds": [
+        "QmFyCmkx"
+      ]
+    }
+  }
+},
+  someId: U29tZQpkMQ==,
+  someIntId: U29tZQppMQ==
+}
