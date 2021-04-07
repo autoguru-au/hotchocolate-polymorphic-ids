@@ -40,6 +40,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 .AddGraphQL()
                 .AddQueryType<Query>()
                 .AddType<FooPayload>()
+                .AddType<Bar>()
+                .EnableRelaySupport()
                 .AddPolymorphicIds(isEnabled
                     ? default
                     : new PolymorphicIdsOptions
@@ -467,6 +469,19 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             [ID] IReadOnlyList<int?>? SomeNullableIds { get; }
 
             string Raw { get; }
+        }
+
+        [Node]
+        public class Bar
+        {
+            public int Id { get; }
+
+            public Bar(int id)
+            {
+                Id = id;
+            }
+
+            public static Bar GetBarAsync(int id) => new(id);
         }
     }
 }
