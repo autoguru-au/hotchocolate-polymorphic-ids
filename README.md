@@ -20,6 +20,12 @@ For example, if you read the description of an `ID` type in GitHub's GraphQL API
 
 The following becomes possible:
 ```graphql
+# Schema
+type Query {
+  booking(id: ID!): Booking
+}
+
+# Query
 query {
   bookingByGlobalId: booking(id: "TheGlobalIdValue7sghdyg=") { ... }
   
