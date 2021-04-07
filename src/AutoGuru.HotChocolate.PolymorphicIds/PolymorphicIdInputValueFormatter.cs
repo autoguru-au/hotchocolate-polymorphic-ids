@@ -72,11 +72,6 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
         private IdValue DeserializeId(string value)
         {
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
             if ((_idRuntimeType == typeof(int) || _idRuntimeType == typeof(int?)) &&
                 value is string rawIntString &&
                 int.TryParse(rawIntString, out var intValue))

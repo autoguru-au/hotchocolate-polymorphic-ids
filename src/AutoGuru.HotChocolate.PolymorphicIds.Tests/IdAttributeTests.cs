@@ -27,6 +27,39 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
         // TODO: When PR 3440 in HC is merged, uncomment array with nulls field usages below in queries
 
+        private const string _argumentsQuery = @"
+            query foo (
+                $intId: ID!
+                $longId: ID!
+                $stringId: ID!
+                $guidId: ID!
+                $null: ID = null)
+            {
+                intId(id: $intId)
+                nullableIntId(id: $intId)
+                nullableIntIdGivenNull: nullableIntId(id: $null)
+                intIdList(id: [$intId])
+                # TODO: nullableIntIdList(id: [$intId, $null])
+
+                longId(id: $longId)
+                nullableLongId(id: $longId)
+                nullableLongIdGivenNull: nullableLongId(id: $null)
+                longIdList(id: [$longId])
+                # TODO: nullableLongIdList(id: [$longId, $null])
+
+                stringId(id: $stringId)
+                nullableStringId(id: $stringId)
+                nullableStringIdGivenNull: nullableStringId(id: $null)
+                stringIdList(id: [$stringId])
+                # TODO: nullableStringIdList(id: [$stringId, $null])
+
+                guidId(id: $guidId)
+                nullableGuidId(id: $guidId)
+                nullableGuidIdGivenNull: nullableGuidId(id: $null)
+                guidIdList(id: [$guidId $guidId])
+                # TODO: nullableGuidIdList(id: [$guidId $null $guidId])
+            }";
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -34,6 +67,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         {
             // arrange
             var intId = 1;
+            var longId = long.MaxValue;
             var stringId = "abc";
             var guidId = new Guid("26a2dc8f-4dab-408c-88c6-523a0a89a2b5");
             var services = new ServiceCollection();
@@ -60,32 +94,9 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             var result = await executor
                 .ExecuteAsync(
                     QueryRequestBuilder.New()
-                        .SetQuery(
-                            @"query foo (
-                                $intId: ID!
-                                $nullIntId: ID = null
-                                $stringId: ID!
-                                $nullStringId: ID = null
-                                $guidId: ID!
-                                $nullGuidId: ID = null)
-                            {
-                                intId(id: $intId)
-                                nullableIntId(id: $intId)
-                                nullableIntIdGivenNull: nullableIntId(id: $nullIntId)
-                                intIdList(id: [$intId])
-                                # TODO: nullableIntIdList(id: [$intId, $nullIntId])
-                                stringId(id: $stringId)
-                                nullableStringId(id: $stringId)
-                                nullableStringIdGivenNull: nullableStringId(id: $nullStringId)
-                                stringIdList(id: [$stringId])
-                                # TODO: nullableStringIdList(id: [$stringId, $nullStringId])
-                                guidId(id: $guidId)
-                                nullableGuidId(id: $guidId)
-                                nullableGuidIdGivenNull: nullableGuidId(id: $nullGuidId)
-                                guidIdList(id: [$guidId $guidId])
-                                # TODO: nullableGuidIdList(id: [$guidId $nullGuidId $guidId])
-                            }")
+                        .SetQuery(_argumentsQuery)
                         .SetVariableValue("intId", intId)
+                        .SetVariableValue("longId", longId.ToString())
                         .SetVariableValue("stringId", stringId)
                         .SetVariableValue("guidId", guidId.ToString())
                         .Create());
@@ -225,6 +236,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             // arrange
             var idSerializer = new IdSerializer();
             var intId = idSerializer.Serialize("Query", 1);
+            var longId = idSerializer.Serialize("Query", long.MaxValue);
             var stringId = idSerializer.Serialize("Query", "abc");
             var guidId = idSerializer.Serialize("Query", new Guid("26a2dc8f-4dab-408c-88c6-523a0a89a2b5"));
 
@@ -237,32 +249,9 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .MakeExecutable()
                     .ExecuteAsync(
                         QueryRequestBuilder.New()
-                            .SetQuery(
-                                @"query foo (
-                                    $intId: ID!
-                                    $nullIntId: ID = null
-                                    $stringId: ID!
-                                    $nullStringId: ID = null
-                                    $guidId: ID!
-                                    $nullGuidId: ID = null)
-                                {
-                                    intId(id: $intId)
-                                    nullableIntId(id: $intId)
-                                    nullableIntIdGivenNull: nullableIntId(id: $nullIntId)
-                                    intIdList(id: [$intId])
-                                    # TODO: nullableIntIdList(id: [$intId, $nullIntId])
-                                    stringId(id: $stringId)
-                                    nullableStringId(id: $stringId)
-                                    nullableStringIdGivenNull: nullableStringId(id: $nullStringId)
-                                    stringIdList(id: [$stringId])
-                                    # TODO: nullableStringIdList(id: [$stringId, $nullStringId])
-                                    guidId(id: $guidId)
-                                    nullableGuidId(id: $guidId)
-                                    nullableGuidIdGivenNull: nullableGuidId(id: $nullGuidId)
-                                    guidIdList(id: [$guidId $guidId])
-                                    # TODO: nullableGuidIdList(id: [$guidId $nullGuidId $guidId])
-                                }")
+                            .SetQuery(_argumentsQuery)
                             .SetVariableValue("intId", intId)
+                            .SetVariableValue("longId", longId.ToString())
                             .SetVariableValue("stringId", stringId)
                             .SetVariableValue("guidId", guidId)
                             .Create());
@@ -448,6 +437,14 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
             public string NullableIntId([ID] int? id) => id?.ToString() ?? "null";
             public string NullableIntIdList([ID] int?[] id) =>
+                string.Join(", ", id.Select(t => t?.ToString() ?? "null"));
+
+            public string LongId([ID] long id) => id.ToString();
+            public string LongIdList([ID] long[] id) =>
+                string.Join(", ", id.Select(t => t.ToString()));
+
+            public string NullableLongId([ID] long? id) => id?.ToString() ?? "null";
+            public string NullableLongIdList([ID] long?[] id) =>
                 string.Join(", ", id.Select(t => t?.ToString() ?? "null"));
 
             public string StringId([ID] string id) => id;

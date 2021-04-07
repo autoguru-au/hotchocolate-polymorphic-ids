@@ -40,9 +40,11 @@ query {
 
 IDs that are internally represented with `Integer`s, `Guid`s, `Long`s, `String`s. You can opt-out to each as required.
 
-For integer-based or long-based IDs, you can pass `"1"` or `1` and both will be accepted.
+For integer-based IDs, you can pass `"1"` or `1` and both will be accepted.
 
-For all other types, you need to pass the string value, e.g. `"26a2dc8f-4dab-408c-88c6-523a0a89a2b5"` for a guid-based ID.
+For all other types, you need to pass the string value, e.g. 
+* `"26a2dc8f-4dab-408c-88c6-523a0a89a2b5"` for a guid-based ID
+* `"123456789"` for a long-based ID
 
 ### Any downsides?
 
