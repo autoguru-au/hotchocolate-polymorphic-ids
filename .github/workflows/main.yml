@@ -40,22 +40,22 @@ jobs:
           flags: integration
           files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
 
-      #- name: Publish to NuGet on version change
-      #  if: ${{ endsWith(github.ref, 'main') }}
-      #  id: publish_nuget
-      #  uses: rohith/publish-nuget@v2.5.5
-      #  with:
-      #    PROJECT_FILE_PATH: src/AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj
-      #    TAG_COMMIT: true
-      #    
-      #- name: Create Release
-      #  if: ${{ success() && steps.publish_nuget.outputs.VERSION }}
-      #  id: create_release
-      #  uses: actions/create-release@latest
-      #  env:
-      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #  with:
-      #    tag_name: ${{ steps.publish_nuget.outputs.VERSION }}
-      #    release_name: ${{ steps.publish_nuget.outputs.VERSION }}
-      #    draft: false
-      #    prerelease: ${{ contains(steps.publish_nuget.outputs.VERSION, 'preview') || contains(steps.publish_nuget.outputs.VERSION, 'rc') }}
+      - name: Publish to NuGet on version change
+        if: ${{ endsWith(github.ref, 'main') }}
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2.5.5
+        with:
+          PROJECT_FILE_PATH: src/AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj
+          TAG_COMMIT: true
+          
+      - name: Create Release
+        if: ${{ success() && steps.publish_nuget.outputs.VERSION }}
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.publish_nuget.outputs.VERSION }}
+          release_name: ${{ steps.publish_nuget.outputs.VERSION }}
+          draft: false
+          prerelease: ${{ contains(steps.publish_nuget.outputs.VERSION, 'preview') || contains(steps.publish_nuget.outputs.VERSION, 'rc') }}
