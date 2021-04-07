@@ -10,12 +10,15 @@
   </p>
 </div>
 
-This package adds support for polymorphic Relay / Global IDs so that you can pass the database id in as an `ID` in an input/argument and it'll be accepted.
+This package adds support to [ChilliCream](https://chillicream.com/)'s 
+[HotChocolate](https://github.com/ChilliCream/hotchocolate) for 
+polymorphic Relay / Global IDs so that you can pass the database id in as an `ID` in 
+an input/argument and it'll be accepted.
 
 For example, if you read the description of an `ID` type in GitHub's GraphQL API, it says:
 > When expected as an input type, any string (such as "4") or integer (such as 4) input value will be accepted as an ID.
 
-This package enables the following to be possible:
+The following becomes possible:
 ```graphql
 query {
   bookingByGlobalId: booking(id: "TheGlobalIdValue7sghdyg=") { ... }
