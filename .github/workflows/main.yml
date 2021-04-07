@@ -33,11 +33,11 @@ jobs:
       - name: Run tests
         run: dotnet test src/ --collect:"XPlat Code Coverage"
         
-      #- name: Publish code coverage
-      #  uses: codecov/codecov-action@v1
-      #  with:
-      #    flags: integration
-      #    files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
+      - name: Publish code coverage
+        uses: codecov/codecov-action@v1
+        with:
+          flags: integration
+          files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
 
       #- name: Publish to NuGet on version change
       #  if: ${{ endsWith(github.ref, 'main') }}
