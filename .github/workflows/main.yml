@@ -1,0 +1,65 @@
+name: ci/cd
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - '*.sln'
+      - '*.props'
+      - '**/*.yml'
+    paths-ignore:
+      - '**/*.md'
+      
+  pull_request: {}
+
+env:
+  VERSION_FILE_PATH: src/Directory.Build.props
+  NUGET_KEY: ${{ secrets.NUGET_KEY }}
+  TAG_COMMIT: false
+jobs:
+  test_and_publish_if_allowed:
+    name: test and publish if allowed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: "2.2.x"
+
+      - uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: "3.1.x"
+
+      - uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: "5.0.x"
+
+      - name: Run tests
+        run: dotnet test src/ --collect:"XPlat Code Coverage"
+        
+      #- name: Publish code coverage
+      #  uses: codecov/codecov-action@v1
+      #  with:
+      #    flags: integration
+      #    files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
+
+      #- name: Publish to NuGet on version change
+      #  if: ${{ endsWith(github.ref, 'main') }}
+      #  id: publish_nuget
+      #  uses: rohith/publish-nuget@v2.5.5
+      #  with:
+      #    PROJECT_FILE_PATH: src/AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj
+      #    TAG_COMMIT: true
+      #    
+      #- name: Create Release
+      #  if: ${{ success() && steps.publish_nuget.outputs.VERSION }}
+      #  id: create_release
+      #  uses: actions/create-release@latest
+      #  env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  with:
+      #    tag_name: ${{ steps.publish_nuget.outputs.VERSION }}
+      #    release_name: ${{ steps.publish_nuget.outputs.VERSION }}
+      #    draft: false
+      #    prerelease: ${{ contains(steps.publish_nuget.outputs.VERSION, 'preview') || contains(steps.publish_nuget.outputs.VERSION, 'rc') }}
