@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\AutoGuru.HotChocolate.PolymorphicIds.csproj" />
+    <ProjectReference Include="..\AutoGuru.HotChocolate.PolymorphicIds\AutoGuru.HotChocolate.PolymorphicIds.csproj" />
   </ItemGroup>
 
   <ItemGroup>
