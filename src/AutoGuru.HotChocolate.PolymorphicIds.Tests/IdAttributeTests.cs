@@ -21,7 +21,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
     {
         private static readonly RequestExecutorOptions _executorOptions = new ()
         {
-            ExecutionTimeout = TimeSpan.FromMinutes(1)
+            ExecutionTimeout = TimeSpan.FromMinutes(1),
+            IncludeExceptionDetails = true
         };
 
         // TODO: When PR 3440 in HC is merged, uncomment array with nulls field usages below in queries
@@ -96,6 +97,31 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             await Verifier.Verify(result.ToJson(), verifySettings);
         }
 
+        [Fact]
+        public async Task PolyId_On_Arguments_Invalid_Id()
+        {
+            // arrange
+
+            // act
+            var result =
+                await SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .AddType<FooPayload>()
+                    .AddPolymorphicIds()
+                    .Create()
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        QueryRequestBuilder.New()
+                            .SetQuery(
+                                @"query foo {
+                                    intId(id: ""SomethingInvalid"")
+                                }")
+                            .Create());
+
+            // assert
+            await Verifier.Verify(result.ToJson());
+        }
+
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -151,6 +177,44 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             verifySettings.UseParameters(isEnabled);
 
             await Verifier.Verify(result.ToJson(), verifySettings);
+        }
+
+        [Fact]
+        public async Task PolyId_On_Objects_Invalid_Id()
+        {
+            // arrange
+            var someId = "1";
+
+            // act
+            var result =
+                await SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .AddType<FooPayload>()
+                    .AddPolymorphicIds()
+                    .Create()
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        QueryRequestBuilder.New()
+                            .SetQuery(
+                                @"query foo ($someId: ID!) {
+                                    foo(input: {
+                                        someId: $someId
+                                        someIds: [""SomethingInvalid""] })
+                                    {
+                                        someId
+                                        someNullableId
+                                        ... on FooPayload {
+                                            someIds
+                                            someNullableIds
+                                            raw
+                                        }
+                                    }
+                                }")
+                            .SetVariableValue("someId", someId)
+                            .Create());
+
+            // assert
+            await Verifier.Verify(result.ToJson());
         }
 
         #region Standard ID still works

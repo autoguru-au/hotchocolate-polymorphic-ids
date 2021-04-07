@@ -104,10 +104,19 @@ namespace AutoGuru.HotChocolate.Types.Relay
             }
             catch
             {
-                // Allow to fall through as this is likely a non-serialized id
+                // If the runtime type is a string,
+                // allow to fall through as this is likely a non-serialized id.
                 // There is a slight chance it's not, but we let it slide
-                return new IdValue(_schemaName, _nodeTypeName, value);
+                if (_idRuntimeType == typeof(string))
+                {
+                    return new IdValue(_schemaName, _nodeTypeName, value);
+                }
             }
+
+            throw new GraphQLException(
+                ErrorBuilder.New()
+                    .SetMessage("The ID `{0}` has an invalid format.", value)
+                    .Build());
         }
     }
 }
