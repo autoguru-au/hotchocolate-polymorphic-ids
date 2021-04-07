@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class PolymorphicIdsSchemaBuilderExtensions
     {
-        public static ISchemaBuilder AddPolymorphicGlobalIds(
+        public static ISchemaBuilder AddPolymorphicIds(
             this ISchemaBuilder builder,
             PolymorphicIdsOptions? options = null)
         {

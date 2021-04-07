@@ -41,7 +41,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddPolymorphicGlobalIds(isEnabled
+                    .AddPolymorphicIds(isEnabled
                         ? default
                         : new PolymorphicIdsOptions
                         {
@@ -105,7 +105,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddPolymorphicGlobalIds(isEnabled
+                    .AddPolymorphicIds(isEnabled
                         ? default
                         : new PolymorphicIdsOptions
                         {

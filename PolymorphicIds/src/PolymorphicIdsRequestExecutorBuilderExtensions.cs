@@ -5,7 +5,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class PolymorphicIdsRequestExecutorBuilderExtensions
     {
-        public static IRequestExecutorBuilder AddPolymorphicGlobalIds(
+        public static IRequestExecutorBuilder AddPolymorphicIds(
                 this IRequestExecutorBuilder builder,
                 PolymorphicIdsOptions? options = null)
         {
@@ -15,7 +15,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             return builder
-                .ConfigureSchema(s => s.AddPolymorphicGlobalIds(options));
+                .ConfigureSchema(s => s.AddPolymorphicIds(options));
         }
     }
 }
