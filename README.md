@@ -18,8 +18,14 @@ an input/argument and it'll be accepted.
 For example, if you read the description of an `ID` type in GitHub's GraphQL API, it says:
 > When expected as an input type, any string (such as "4") or integer (such as 4) input value will be accepted as an ID.
 
-The following becomes possible:
+The following becomes possible (on args/input fields annotated with HotChocolate's `[ID]` attribute).
 ```graphql
+# Schema
+type Query {
+  booking(id: ID!): Booking
+}
+
+# Query
 query {
   bookingByGlobalId: booking(id: "TheGlobalIdValue7sghdyg=") { ... }
   
@@ -33,12 +39,13 @@ query {
 
 ### Why would you do this?
 
-1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by it's database id (`123`) as the client doesn't have the global ID.
+1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by it's database id (`123`) as the client doesn't have the global ID. But it's nasty to have to expose a `bookingByDbId(id: Int!)` field to do so.
 1. For easier debugging. As humans we use database ids. So if you've got one, you can just pass it on through.
 
 ### What's supported?
 
-IDs that are internally represented with `Integer`s, `Guid`s, `Long`s, `String`s. You can opt-out to each as required.
+IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents. 
+You can opt-out of each's support as required.
 
 For integer-based IDs, you can pass `"1"` or `1` and both will be accepted.
 
