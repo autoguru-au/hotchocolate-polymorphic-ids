@@ -163,7 +163,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: $someId
-                                        someNullableIds: [$someIntId, null] })
+                                        someNullableIds: [$someIntId, null]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -280,7 +281,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: $someId
-                                        someNullableIds: [$someIntId] })
+                                        someNullableIds: [$someIntId]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -328,7 +330,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: null
-                                        someNullableIds: [$someIntId, null] })
+                                        someNullableIds: [$someIntId, null]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -425,6 +428,22 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         }
 
         #endregion
+
+        [Fact]
+        public async Task Schema()
+        {
+            // arrange / act
+            var schema =
+                SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .AddType<FooPayload>()
+                    .AddPolymorphicIds()
+                    .Create()
+                    .ToString();
+
+            // assert
+            await Verifier.Verify(schema);
+        }
 
         [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Can't be static for HC")]
         public class Query
