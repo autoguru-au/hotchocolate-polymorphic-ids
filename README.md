@@ -57,7 +57,8 @@ For all other types, you need to pass the string value, e.g.
 
 1. Strings are a problem. It's difficult to distinguish between the global id format and a string database id. 
 As such, in this case, we try to read it as a global id and if that throws we consider it a database id. 
-The one problem being that invalid global ids, e.g. you missed one char, will be considered a database id.
+The one problem being that invalid global ids, e.g. you missed one char, will be considered a database id. 
+If you don't have string db ids, it's a good idea to just turn off their handling so an invalid global id would still throw (see setup below).
 2. There's a performance hit to the interception, but it'd be barely measurable.
 3. Once you go down this path, it's very difficult to go back as your clients will start to rely on this.
 
