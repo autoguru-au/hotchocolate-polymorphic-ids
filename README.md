@@ -39,7 +39,7 @@ query {
 
 ### Why would you do this?
 
-1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by it's database id (`123`) as the client doesn't have the global ID. But it's nasty to have to expose a `bookingByDbId(id: Int!)` field to do so.
+1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by its database id (`123`) as the client doesn't have the global ID. But it's nasty to have to expose a `bookingByDbId(id: Int!)` field to do so.
 1. For easier debugging. As humans we use database ids. So if you've got one, you can just pass it on through.
 
 ### What's supported?
