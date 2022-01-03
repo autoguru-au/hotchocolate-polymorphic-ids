@@ -82,3 +82,8 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
 ```
 
 Note: Requires HotChocolate v11.1+
+
+### Adding a dbId field declaratively
+
+Currently we use [these helpers](https://gist.github.com/benmccallum/89d4d5b604d67094418956db43386ce5), which is working well on v11.1.0 of Hot Chocolate.
+
