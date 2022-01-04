@@ -44,7 +44,11 @@ query {
 
 ### What's supported?
 
-IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents. 
+Currently only arguments / input fields that are annotated with the `[ID]` attribute will be picked up.
+Specifically, the fluent-style declaration `.ID()` won't be handled right now; though support could 
+be added for it in the future so shout out if you need it.
+
+IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents will be handled. 
 You can opt-out of each's support as required.
 
 For integer-based IDs, you can pass `"1"` or `1` and both will be accepted.
