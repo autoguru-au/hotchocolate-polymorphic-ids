@@ -75,10 +75,6 @@ Install a [compatible version](#Compatibility) of the
 dotnet add package AutoGuru.HotChocolate.PolymorphicIds
 ```
 
-Note: Requires HotChocolate v11.1+
-Note: For HotChocolate v11.1+ use v1; but for 
-
-
 Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBuilder`):
 ```c#
 .AddPolymorphicIds(new PolymorphicIdsOptions
@@ -103,9 +99,9 @@ Compatibility is listed below.
 
 We strive to match Hot Chocolate's supported .NET target frameworks, though this might not always be possible.
 
-| HotChocolate | Polymorphic IDs | Our docs |
-| ------------ | ---------- | --------------- |
-|      v12.0.0 |         v2 | right here |
-|      v11.1.0 |         v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
+| HotChocolate | Polymorphic IDs | Our docs   |
+| ------------ | --------------- | -----------|
+|      v12.0.0 |              v2 | right here |
+|      v11.1.0 |              v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
 
 \* Denotes unexpected binary incompatibility / breaking change in Hot Chocolate
