@@ -105,7 +105,7 @@ We strive to match Hot Chocolate's supported .NET target frameworks, though this
 
 | HotChocolate | Polymorphic IDs | Our docs |
 | ------------ | ---------- | --------------- |
-|      v12.0.0 |         v9 | right here |
+|      v12.0.0 |         v2 | right here |
 |      v11.1.0 |         v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
 
 \* Denotes unexpected binary incompatibility / breaking change in Hot Chocolate
