@@ -63,11 +63,16 @@ The one problem being that invalid global ids, e.g. you missed one char, will be
 
 ## Setup
 
-Install the [package from NuGet](https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds)
+Install a [compatible version](#Compatibility) of the 
+[package from NuGet](https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds)
 
 ```bash
 dotnet add package AutoGuru.HotChocolate.PolymorphicIds
 ```
+
+Note: Requires HotChocolate v11.1+
+Note: For HotChocolate v11.1+ use v1; but for 
+
 
 Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBuilder`):
 ```c#
@@ -80,4 +85,18 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
 });
 ```
 
-Note: Requires HotChocolate v11.1+
+## Compatibility
+
+We depend on [HotChocolate.Execution](https://www.nuget.org/packages/HotChocolate.Execution)
+which can bring breaking changes from time to time and require a major bump our end.
+Compatibility is listed below.
+
+We strive to match Hot Chocolate's supported .NET target frameworks, though this might not always be possible.
+
+| HotChocolate | Polymorphic IDs | Our docs |
+| ------------ | ---------- | --------------- |
+|      v12.0.0 |         v9 | right here |
+|      v11.1.0 |         v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
+
+\* Denotes unexpected binary incompatibility / breaking change in Hot Chocolate
+

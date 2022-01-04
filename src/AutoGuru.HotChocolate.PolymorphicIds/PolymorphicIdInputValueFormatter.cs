@@ -18,7 +18,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             Type idRuntimeType,
             IIdSerializer idSerializer)
         {
-            _schemaName = null; // not needed during deserialization
+            _schemaName = null!; // not needed during deserialization
             _nodeTypeName = nodeTypeName;
             _idRuntimeType = idRuntimeType;
             _idSerializer = idSerializer;

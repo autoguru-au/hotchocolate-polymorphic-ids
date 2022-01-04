@@ -76,7 +76,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 .AddQueryType<Query>()
                 .AddType<FooPayload>()
                 .AddType<Bar>()
-                .EnableRelaySupport()
+                .AddGlobalObjectIdentification()
                 .AddPolymorphicIds(isEnabled
                     ? default
                     : new PolymorphicIdsOptions
