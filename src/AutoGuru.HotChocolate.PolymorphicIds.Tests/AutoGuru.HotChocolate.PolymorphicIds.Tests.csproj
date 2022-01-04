@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- For testing breaking changes against a specific version of HC -->
+    <!--<PackageReference Include="AutoGuru.HotChocolate.PolymorphicIds" Version="1.0.0" />
+    <PackageReference Include="HotChocolate.Execution" Version="12.0.0" />-->
+
+    <!-- For standard testing -->
     <ProjectReference Include="..\AutoGuru.HotChocolate.PolymorphicIds\AutoGuru.HotChocolate.PolymorphicIds.csproj" />
   </ItemGroup>
 

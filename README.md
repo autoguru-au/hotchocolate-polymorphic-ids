@@ -44,7 +44,11 @@ query {
 
 ### What's supported?
 
-IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents. 
+Currently only arguments / input fields that are annotated with the `[ID]` attribute will be picked up.
+Specifically, the fluent-style declaration `.ID()` won't be handled right now; though support could 
+be added for it in the future so shout out if you need it.
+
+IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents will be handled. 
 You can opt-out of each's support as required.
 
 For integer-based IDs, you can pass `"1"` or `1` and both will be accepted.
@@ -64,11 +68,16 @@ If you don't have string db ids, it's a good idea to just turn off their handlin
 
 ## Setup
 
-Install the [package from NuGet](https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds)
+Install a [compatible version](#Compatibility) of the 
+[package from NuGet](https://www.nuget.org/packages/AutoGuru.HotChocolate.PolymorphicIds)
 
 ```bash
 dotnet add package AutoGuru.HotChocolate.PolymorphicIds
 ```
+
+Note: Requires HotChocolate v11.1+
+Note: For HotChocolate v11.1+ use v1; but for 
+
 
 Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBuilder`):
 ```c#
@@ -81,9 +90,22 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
 });
 ```
 
-Note: Requires HotChocolate v11.1+
-
 ### Adding a dbId field declaratively
 
 Currently we use [these helpers](https://gist.github.com/benmccallum/89d4d5b604d67094418956db43386ce5), which is working well on v11.1.0 of Hot Chocolate.
 
+
+## Compatibility
+
+We depend on [HotChocolate.Execution](https://www.nuget.org/packages/HotChocolate.Execution)
+which can bring breaking changes from time to time and require a major bump our end.
+Compatibility is listed below.
+
+We strive to match Hot Chocolate's supported .NET target frameworks, though this might not always be possible.
+
+| HotChocolate | Polymorphic IDs | Our docs |
+| ------------ | ---------- | --------------- |
+|      v12.0.0 |         v9 | right here |
+|      v11.1.0 |         v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
+
+\* Denotes unexpected binary incompatibility / breaking change in Hot Chocolate
