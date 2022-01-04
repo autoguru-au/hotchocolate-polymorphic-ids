@@ -140,24 +140,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             IDAttribute? idAttribute = null;
             IExtendedType? idType = null;
 
-            if (definition is ArgumentDefinition argument)
-            {
-                if (argument.Parameter == null)
-                {
-                    return null;
-                }
-
-                idAttribute = (IDAttribute?)argument.Parameter
-                   .GetCustomAttributes(inherit: true)
-                   .SingleOrDefault(a => a is IDAttribute);
-                if (idAttribute == null)
-                {
-                    return null;
-                }
-
-                idType = typeInspector.GetArgumentType(argument.Parameter, true);
-            }
-            else if (definition is InputFieldDefinition inputField)
+            if (definition is InputFieldDefinition inputField)
             {
                 // UseSorting arg/s seems to come in here with a null Property
                 if (inputField.Property == null)
@@ -193,6 +176,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 {
                     return null;
                 }
+            }
+            else if (definition.Type is SyntaxTypeReference syntaxTypeReference)
+            {
+                return null;
             }
 
             if (idAttribute is null || idType is null)
