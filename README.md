@@ -39,7 +39,7 @@ query {
 
 ### Why would you do this?
 
-1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by it's database id (`123`) as the client doesn't have the global ID. But it's nasty to have to expose a `bookingByDbId(id: Int!)` field to do so.
+1. To achieve friendly URLs, like `/booking/123`, you need to be able to get a booking by its database id (`123`) as the client doesn't have the global ID. But it's nasty to have to expose a `bookingByDbId(id: Int!)` field to do so.
 1. For easier debugging. As humans we use database ids. So if you've got one, you can just pass it on through.
 
 ### What's supported?
@@ -57,7 +57,8 @@ For all other types, you need to pass the string value, e.g.
 
 1. Strings are a problem. It's difficult to distinguish between the global id format and a string database id. 
 As such, in this case, we try to read it as a global id and if that throws we consider it a database id. 
-The one problem being that invalid global ids, e.g. you missed one char, will be considered a database id.
+The one problem being that invalid global ids, e.g. you missed one char, will be considered a database id. 
+If you don't have string db ids, it's a good idea to just turn off their handling so an invalid global id would still throw (see setup below).
 2. There's a performance hit to the interception, but it'd be barely measurable.
 3. Once you go down this path, it's very difficult to go back as your clients will start to rely on this.
 
@@ -81,3 +82,8 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
 ```
 
 Note: Requires HotChocolate v11.1+
+
+### Adding a dbId field declaratively
+
+Currently we use [these helpers](https://gist.github.com/benmccallum/89d4d5b604d67094418956db43386ce5), which is working well on v11.1.0 of Hot Chocolate.
+
