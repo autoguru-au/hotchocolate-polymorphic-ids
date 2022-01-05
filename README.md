@@ -44,7 +44,7 @@ query {
 
 ### What's supported?
 
-Currently only arguments / input fields that are annotated with the `[ID]` attribute will be picked up.
+Currently only arguments / input fields that are annotated with the `[ID]` attribute will be noticed and have support added for handling different ids.
 Specifically, the fluent-style declaration `.ID()` won't be handled right now; though support could 
 be added for it in the future so shout out if you need it.
 
@@ -88,7 +88,11 @@ Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBui
 
 ### Adding a dbId field declaratively
 
-Currently we use [these helpers](https://gist.github.com/benmccallum/89d4d5b604d67094418956db43386ce5), which is working well on v11.1.0 of Hot Chocolate.
+At AutoGuru we add a `dbId` field to all our nodes. Since this is essentially the same as declaring the node's `id` field, we've got
+some helpers for this that can be found [here](https://gist.github.com/benmccallum/89d4d5b604d67094418956db43386ce5).
+
+Currently this is a manual/explicit thing you need to do, but in future this will ideally become automatic via a type interceptor
+if I can figure out how to get that to work (last attempt failed :P).
 
 
 ## Compatibility
