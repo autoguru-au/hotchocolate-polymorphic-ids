@@ -48,6 +48,8 @@ Currently only arguments / input fields that are annotated with the `[ID]` attri
 Specifically, the fluent-style declaration `.ID()` won't be handled right now; though support could 
 be added for it in the future so shout out if you need it.
 
+Arrays of IDs are handled (but only v2+ can support arrays of nullable IDs (`[ID]` or `[ID]!`) due to a bug in Hot Chocolate v11).
+
 IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents will be handled. 
 You can opt-out of each's support as required.
 
