@@ -1,4 +1,4 @@
-{
+﻿{
   "data": {
     "foo": {
       "someId": "QmFyCmQx",
@@ -7,9 +7,10 @@
         "QmFyCmkx"
       ],
       "someNullableIds": [
-        "QmFyCmkx"
+        "QmFyCmkx",
+        null
       ],
-      "raw": "SomeId: 1, SomeIds: [1], SomeNullableId: 1, SomeNullableIds: [1]"
+      "raw": "SomeId: 1, SomeIds: [1], SomeNullableId: 1, SomeNullableIds: [1, ]"
     }
   }
 }
