@@ -177,6 +177,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     return null;
                 }
             }
+            else if (definition.Type is SyntaxTypeReference syntaxTypeReference)
+            {
+                return null;
+            }
 
             if (idAttribute is null || idType is null)
             {

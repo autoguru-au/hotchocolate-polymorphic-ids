@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HotChocolate;
 using HotChocolate.Execution;
 using HotChocolate.Execution.Options;
+using HotChocolate.Types;
 using HotChocolate.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 using VerifyTests;
@@ -73,7 +74,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 .AddQueryType<Query>()
                 .AddType<FooPayload>()
                 .AddType<Bar>()
-                .EnableRelaySupport()
+                .AddGlobalObjectIdentification()
                 .AddPolymorphicIds(isEnabled
                     ? default
                     : new PolymorphicIdsOptions
@@ -224,6 +225,42 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
             // assert
             await Verifier.Verify(result.ToJson());
+        }
+
+        [Fact(Skip = "WIP, not yet supported")]
+        public async Task PolyId_On_Objects_Invalid_Id_FluentStyle()
+        {
+            // arrange
+            var someId = "1";
+
+            // act
+            var schema =
+                SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .AddType<FooPayload>()
+                    .AddType<LolInputType>()
+                    .AddPolymorphicIds()
+                    .Create();
+
+            var result = await schema
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        QueryRequestBuilder.New()
+                            .SetQuery(
+                                @"query lol ($someId: ID!) {
+                                    lol(input: {
+                                        someIdCustomName: $someId })
+                                }")
+                            .SetVariableValue("someId", someId)
+                            .Create());
+
+            // assert
+            await Verifier.Verify(
+                new
+                {
+                    schema = schema.ToString(),
+                    result = result.ToJson()
+                });
         }
 
         #region Standard ID still works
@@ -482,6 +519,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
             public IFooPayload Foo(FooInput input) =>
                 new FooPayload(input.SomeId, input.SomeNullableId, input.SomeIds, input.SomeNullableIds);
+
+            public int Lol(LolInput input) => input.SomeId;
         }
 
         public class FooInput
@@ -560,6 +599,19 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             }
 
             public static Bar GetBarAsync(int id) => new(id);
+        }
+
+        public class LolInput
+        {
+            public int SomeId { get; set; }
+        }
+
+        public class LolInputType : InputObjectType<LolInput>
+        {
+            protected override void Configure(IInputObjectTypeDescriptor<LolInput> descriptor)
+            {
+                descriptor.Field(x => x.SomeId).Name("someIdCustomName").ID("Some");
+            }
         }
     }
 }
