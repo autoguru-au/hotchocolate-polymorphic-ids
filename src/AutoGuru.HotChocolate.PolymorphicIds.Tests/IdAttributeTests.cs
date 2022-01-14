@@ -571,8 +571,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             public string Raw =>
                 $"{nameof(SomeId)}: {SomeId}, " +
                 $"{nameof(SomeIds)}: [{string.Join(", ", SomeIds)}], " +
-                $"{nameof(SomeNullableId)}: {SomeNullableId}, " +
-                $"{nameof(SomeNullableIds)}: [{string.Join(", ", SomeNullableIds ?? Array.Empty<int?>())}]";
+                $"{nameof(SomeNullableId)}: {SomeNullableId ?? "null"}, " +
+                $"{nameof(SomeNullableIds)}: {(SomeNullableIds == null ? "null" : "[" + string.Join(", ", SomeNullableIds.Select(x => x?.ToString() ?? "null").ToArray()) + "]")}";
         }
 
         public interface IFooPayload
