@@ -36,22 +36,21 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 return DeserializeId(s);
             }
 
-            if (runtimeValue is IEnumerable<string> stringEnumerable) // TODO: When PR 3440 in HC is merged, this should become IEnumerable<string?>
+            if (runtimeValue is IEnumerable<string?> stringEnumerable)
             {
                 try
                 {
-                    var list = new List<IdValue>();// TODO: When PR 3440 in HC is merged, this should become List<IdValue?>
+                    var list = new List<IdValue?>();
                     foreach (var sv in stringEnumerable)
                     {
-                        // TODO: When PR 3440 in HC is merged, this should be uncommented
-                        //if (sv is null)
-                        //{
-                        //  list.Add(null);
-                        //}
-                        //else
-                        //{
-                        list.Add(DeserializeId(sv));
-                        //}
+                        if (sv is null)
+                        {
+                            list.Add(null);
+                        }
+                        else
+                        {
+                            list.Add(DeserializeId(sv));
+                        }
                     }
                     return list;
                 }

@@ -17,7 +17,6 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 {
     [UsesVerify]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
-    [SuppressMessage("Performance", "CA1822:Mark members as static")]
     public class IdAttributeTests
     {
         private static readonly RequestExecutorOptions _executorOptions = new ()
@@ -25,8 +24,6 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             ExecutionTimeout = TimeSpan.FromMinutes(1),
             IncludeExceptionDetails = true
         };
-
-        // TODO: When PR 3440 in HC is merged, uncomment array with nulls field usages below in queries
 
         private const string _argumentsQuery = @"
             query foo (
@@ -40,25 +37,25 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 nullableIntId(id: $intId)
                 nullableIntIdGivenNull: nullableIntId(id: $null)
                 intIdList(id: [$intId])
-                # TODO: nullableIntIdList(id: [$intId, $null])
+                nullableIntIdList(id: [$intId, $null])
 
                 longId(id: $longId)
                 nullableLongId(id: $longId)
                 nullableLongIdGivenNull: nullableLongId(id: $null)
                 longIdList(id: [$longId])
-                # TODO: nullableLongIdList(id: [$longId, $null])
+                nullableLongIdList(id: [$longId, $null])
 
                 stringId(id: $stringId)
                 nullableStringId(id: $stringId)
                 nullableStringIdGivenNull: nullableStringId(id: $null)
                 stringIdList(id: [$stringId])
-                # TODO: nullableStringIdList(id: [$stringId, $null])
+                nullableStringIdList(id: [$stringId, $null])
 
                 guidId(id: $guidId)
                 nullableGuidId(id: $guidId)
                 nullableGuidIdGivenNull: nullableGuidId(id: $null)
                 guidIdList(id: [$guidId $guidId])
-                # TODO: nullableGuidIdList(id: [$guidId $null $guidId])
+                nullableGuidIdList(id: [$guidId $null $guidId])
             }";
 
         [Theory]
@@ -167,7 +164,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: $someId
-                                        someNullableIds: [$someIntId] }) # TODO: null] })
+                                        someNullableIds: [$someIntId, null]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -320,7 +318,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: $someId
-                                        someNullableIds: [$someIntId] })
+                                        someNullableIds: [$someIntId]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -368,7 +367,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         someId: $someId
                                         someIds: [$someIntId]
                                         someNullableId: null
-                                        someNullableIds: [$someIntId] }) # TODO: null
+                                        someNullableIds: [$someIntId, null]
+                                    })
                                     {
                                         someId
                                         someNullableId
@@ -466,6 +466,23 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
         #endregion
 
+        [Fact]
+        public async Task Schema()
+        {
+            // arrange / act
+            var schema =
+                SchemaBuilder.New()
+                    .AddQueryType<Query>()
+                    .AddType<FooPayload>()
+                    .AddPolymorphicIds()
+                    .Create()
+                    .ToString();
+
+            // assert
+            await Verifier.Verify(schema);
+        }
+
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Can't be static for HC")]
         public class Query
         {
             public string IntId([ID] int id) => id.ToString();
@@ -554,8 +571,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             public string Raw =>
                 $"{nameof(SomeId)}: {SomeId}, " +
                 $"{nameof(SomeIds)}: [{string.Join(", ", SomeIds)}], " +
-                $"{nameof(SomeNullableId)}: {SomeNullableId}, " +
-                $"{nameof(SomeNullableIds)}: [{string.Join(", ", SomeNullableIds ?? Array.Empty<int?>())}]";
+                $"{nameof(SomeNullableId)}: {SomeNullableId ?? "null"}, " +
+                $"{nameof(SomeNullableIds)}: {(SomeNullableIds == null ? "null" : "[" + string.Join(", ", SomeNullableIds.Select(x => x?.ToString() ?? "null").ToArray()) + "]")}";
         }
 
         public interface IFooPayload

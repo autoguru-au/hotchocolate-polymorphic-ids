@@ -9,7 +9,8 @@
         "QmFyCmkx"
       ],
       "someNullableIds": [
-        "QmFyCmkx"
+        "QmFyCmkx",
+        null
       ]
     }
   }

@@ -1,0 +1,57 @@
+﻿schema {
+  query: Query
+}
+
+interface IFooPayload {
+  someId: ID!
+  someNullableId: ID
+  someIds: [ID!]!
+  someNullableIds: [ID]
+  raw: String!
+}
+
+type FooPayload implements IFooPayload {
+  someId: ID!
+  someIds: [ID!]!
+  someNullableId: ID
+  someNullableIds: [ID]
+  raw: String!
+}
+
+type Query {
+  intId(id: ID!): String!
+  intIdList(id: [ID!]!): String!
+  nullableIntId(id: ID): String!
+  nullableIntIdList(id: [ID]!): String!
+  longId(id: ID!): String!
+  longIdList(id: [ID!]!): String!
+  nullableLongId(id: ID): String!
+  nullableLongIdList(id: [ID]!): String!
+  stringId(id: ID!): String!
+  stringIdList(id: [ID!]!): String!
+  nullableStringId(id: ID): String!
+  nullableStringIdList(id: [ID]!): String!
+  guidId(id: ID!): String!
+  guidIdList(id: [ID!]!): String!
+  nullableGuidId(id: ID): String!
+  nullableGuidIdList(id: [ID]!): String!
+  foo(input: FooInput!): IFooPayload!
+  lol(input: LolInput!): Int!
+}
+
+input FooInput {
+  someId: ID!
+  someNullableId: ID
+  someIds: [ID!]!
+  someNullableIds: [ID]
+}
+
+input LolInput {
+  someId: Int!
+}
+
+"The `@defer` directive may be provided for fragment spreads and inline fragments to inform the executor to delay the execution of the current fragment to indicate deprioritization of the current fragment. A query with `@defer` directive will cause the request to potentially return multiple responses, where non-deferred data is delivered in the initial response and data deferred is delivered in a subsequent response. `@include` and `@skip` take precedence over `@defer`."
+directive @defer("If this argument label has a value other than null, it will be passed on to the result of this defer directive. This label is intended to give client applications a way to identify to which fragment a deferred result belongs to." label: String "Deferred when true." if: Boolean) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"The `@stream` directive may be provided for a field of `List` type so that the backend can leverage technology such as asynchronous iterators to provide a partial list in the initial response, and additional list items in subsequent responses. `@include` and `@skip` take precedence over `@stream`."
+directive @stream("If this argument label has a value other than null, it will be passed on to the result of this stream directive. This label is intended to give client applications a way to identify to which fragment a streamed result belongs to." label: String "The initial elements that shall be send down to the consumer." initialCount: Int! "Streamed when true." if: Boolean) on FIELD
