@@ -46,7 +46,7 @@ query {
 
 Currently only arguments / input fields that are annotated with the `[ID]` attribute will be noticed and have support added for handling different ids.
 Specifically, the fluent-style declaration `.ID()` won't be handled right now; though support could 
-be added for it in the future so shout out if you need it.
+be added for it in the future so shout out if you need it on the [open issue](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/issues/5).
 
 Arrays of IDs are handled (but only v2+ can support arrays of nullable IDs (`[ID]` or `[ID]!`) due to a bug in Hot Chocolate v11).
 
