@@ -90,7 +90,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 .AddQueryType<Query>()
                 .AddType<FooPayload>()
                 .AddType<Bar>()
-                .AddGlobalObjectIdentification(registerNodeInterface: false)
+                .AddGlobalObjectIdentification()
                 .AddPolymorphicIds(isEnabled
                     ? default
                     : new PolymorphicIdsOptions
@@ -132,7 +132,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .AddPolymorphicIds()
                     .Create()
                     .MakeExecutable(_executorOptions)
@@ -162,7 +162,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .AddPolymorphicIds(isEnabled
                         ? default
                         : new PolymorphicIdsOptions
@@ -218,7 +218,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .AddPolymorphicIds()
                     .Create()
                     .MakeExecutable(_executorOptions)
@@ -246,7 +246,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             await Verifier.Verify(result.ToJson());
         }
 
-        [Fact(Skip = "WIP, not yet supported")]
+        [Fact]
         public async Task PolyId_On_Objects_Invalid_Id_FluentStyle()
         {
             // arrange
@@ -301,7 +301,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
                     .AddType<Bar>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
@@ -330,7 +330,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
@@ -380,7 +380,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
@@ -429,7 +429,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 await SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
@@ -464,7 +464,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             var schema = SchemaBuilder.New()
                 .AddQueryType<Query>()
                 .AddType<FooPayload>()
-                .AddGlobalObjectIdentification(registerNodeInterface: false)
+                .AddGlobalObjectIdentification()
                 .Create();
 
             var executableSchema = schema
@@ -503,7 +503,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 SchemaBuilder.New()
                     .AddQueryType<Query>()
                     .AddType<FooPayload>()
-                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddGlobalObjectIdentification()
                     .AddPolymorphicIds()
                     .Create()
                     .ToString();

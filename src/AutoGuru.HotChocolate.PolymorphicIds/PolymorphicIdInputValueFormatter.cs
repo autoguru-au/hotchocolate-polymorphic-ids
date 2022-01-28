@@ -4,7 +4,7 @@ using HotChocolate;
 using HotChocolate.Types;
 using HotChocolate.Types.Relay;
 
-namespace AutoGuru.HotChocolate.Types.Relay
+namespace AutoGuru.HotChocolate.PolymorphicIds
 {
     internal class PolymorphicIdInputValueFormatter : IInputValueFormatter
     {
@@ -14,12 +14,16 @@ namespace AutoGuru.HotChocolate.Types.Relay
         private readonly IIdSerializer _idSerializer;
 
         public PolymorphicIdInputValueFormatter(
-            NameString nodeTypeName,
+            NameString? nodeTypeName,
             Type idRuntimeType,
             IIdSerializer idSerializer)
         {
             _schemaName = null!; // not needed during deserialization
-            _nodeTypeName = nodeTypeName;
+
+            // Not having a type name doesn't matter as it won't be validate
+            // https://github.com/ChilliCream/hotchocolate/blob/c162ca29c23acc69cf81a33155d7384ad4dc9d0f/src/HotChocolate/Core/src/Types/Types/Relay/Extensions/RelayIdFieldHelpers.cs#L226
+            _nodeTypeName = nodeTypeName ?? WellKnownConstants.UnknownTypeName;
+
             _idRuntimeType = idRuntimeType;
             _idSerializer = idSerializer;
         }

@@ -4,19 +4,21 @@ using HotChocolate;
 using HotChocolate.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AutoGuru.HotChocolate.Types.Relay
+namespace AutoGuru.HotChocolate.PolymorphicIds
 {
     internal static class PolymorphicIdInputValueFormatterProvider
     {
-        private static ConcurrentDictionary<NameString, ConcurrentDictionary<Type, PolymorphicIdInputValueFormatter>> _cache = new();
+        private static readonly ConcurrentDictionary<
+            NameString,
+            ConcurrentDictionary<Type, PolymorphicIdInputValueFormatter>> _cache = new();
 
         internal static PolymorphicIdInputValueFormatter Get(
             IServiceProvider serviceProvider,
-            NameString typeName,
+            NameString? typeName,
             Type idRuntimeType)
         {
             var innerCache = _cache.GetOrAdd(
-                typeName,
+                typeName ?? WellKnownConstants.UnknownTypeName,
                 new ConcurrentDictionary<Type, PolymorphicIdInputValueFormatter>());
 
             return innerCache.GetOrAdd(

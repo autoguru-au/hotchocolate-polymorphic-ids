@@ -1,5 +1,5 @@
 ﻿using System;
-using AutoGuru.HotChocolate.Types.Relay;
+using AutoGuru.HotChocolate.PolymorphicIds;
 using HotChocolate;
 
 namespace Microsoft.Extensions.DependencyInjection

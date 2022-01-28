@@ -10,7 +10,7 @@ using HotChocolate.Types.Descriptors.Definitions;
 using HotChocolate.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AutoGuru.HotChocolate.Types.Relay
+namespace AutoGuru.HotChocolate.PolymorphicIds
 {
     internal sealed class PolymorphicIdsTypeInterceptor : TypeInterceptor
     {
@@ -96,7 +96,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
             ArgumentDefinition argumentDefinition,
-            NameString typeName,
+            NameString? typeName,
             Type idRuntimeType)
         {
             var formatter = PolymorphicIdInputValueFormatterProvider.Get(
@@ -148,7 +148,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             return true;
         }
 
-        private static (string NodeTypeName, Type IdRuntimeType)? GetIdInfo(
+        private static (string? NodeTypeName, Type IdRuntimeType)? GetIdInfo(
             ITypeCompletionContext completionContext,
             ArgumentDefinition definition)
         {
@@ -169,6 +169,12 @@ namespace AutoGuru.HotChocolate.Types.Relay
                    .SingleOrDefault(a => a is IDAttribute);
                 if (idAttribute == null)
                 {
+                    // TODO: Here you could check for
+                    //var idNullableType = completionContext.TypeInspector.GetTypeRef(typeof(IdType));
+                    //var idNonNullableType = completionContext.TypeInspector.GetTypeRef(typeof(NonNullType<IdType>));
+                    //(inputField.Type as ExtendedTypeReference).Type == idNonNullableType.Type || idNullableType.Type
+                    // and then we know it's an id but then the problem is how to get the type name (if any)
+
                     return null;
                 }
 
@@ -209,7 +215,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             var idRuntimeType = idType.ElementType?.Source ?? idType.Source;
             string nodeTypeName = idAttribute?.TypeName.HasValue ?? false
                 ? idAttribute.TypeName
-                : completionContext.Type.Name;
+                : null;
 
             return (nodeTypeName, idRuntimeType);
         }
