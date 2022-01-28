@@ -16,7 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
             }
 
             options ??= new PolymorphicIdsOptions();
-
+            
             return builder
                 .SetContextData(typeof(PolymorphicIdsOptions).FullName!, options)
                 .TryAddTypeInterceptor<PolymorphicIdsTypeInterceptor>();
