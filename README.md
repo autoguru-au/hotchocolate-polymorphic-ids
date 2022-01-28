@@ -77,6 +77,7 @@ dotnet add package AutoGuru.HotChocolate.PolymorphicIds
 
 Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBuilder`):
 ```c#
+.AddGlobalObjectIdentification() // Required since Hot Chocolate v12.6.0+
 .AddPolymorphicIds(new PolymorphicIdsOptions
 {
     HandleGuidIds = false,    // true by default
