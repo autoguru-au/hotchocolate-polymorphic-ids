@@ -79,6 +79,7 @@ dotnet add package AutoGuru.HotChocolate.PolymorphicIds
 
 Configure it on your schema (`ISchemaBuilder`) or executor (`IRequestExecutorBuilder`):
 ```c#
+.AddGlobalObjectIdentification() // Required since Hot Chocolate v12.6.0+
 .AddPolymorphicIds(new PolymorphicIdsOptions
 {
     HandleGuidIds = false,    // true by default
@@ -107,7 +108,8 @@ We strive to match Hot Chocolate's supported .NET target frameworks, though this
 
 | HotChocolate | Polymorphic IDs | Our docs   |
 | ------------ | --------------- | -----------|
-|      v12.0.0 |              v2 | right here |
+|     v12.6.0* |              v3 | right here |
+|      v12.0.0 |              v2 | [/v2/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v2/main) branch |
 |      v11.1.0 |              v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
 
 \* Denotes unexpected binary incompatibility / breaking change in Hot Chocolate

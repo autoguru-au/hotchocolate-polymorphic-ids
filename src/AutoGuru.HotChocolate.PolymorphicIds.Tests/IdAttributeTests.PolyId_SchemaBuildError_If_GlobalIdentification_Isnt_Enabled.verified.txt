@@ -1,0 +1,3 @@
+﻿For more details look at the `Errors` property.
+
+1. Global ID support isn't enabled but is required for AutoGuru.HotChocolate.PolymorphicIds. Please ensure that AddGlobalObjectIdentification is called during startup.

@@ -16,6 +16,9 @@ namespace AutoGuru.HotChocolate.Types.Relay
     {
         private const string StandardGlobalIdFormatterName = "GlobalIdInputValueFormatter";
 
+        // /src/HotChocolate/Core/src/Types/Types/WellKnownContextData.cs
+        private const string GlobalIdSupportEnabledContextDataKey = "HotChocolate.Relay.GlobalId";
+
         private PolymorphicIdsOptions? _options;
         private PolymorphicIdsOptions Options =>
             _options ?? throw new Exception("Options weren't set up");
@@ -25,6 +28,19 @@ namespace AutoGuru.HotChocolate.Types.Relay
             DefinitionBase? definition,
             IDictionary<string, object?> contextData)
         {
+            var globalContextData = completionContext.ContextData;
+            if (!globalContextData.ContainsKey(GlobalIdSupportEnabledContextDataKey))
+            {
+                var error = SchemaErrorBuilder.New()
+                    .SetMessage(
+                        "Global ID support isn't enabled but is required for " +
+                        "AutoGuru.HotChocolate.PolymorphicIds. Please ensure that " +
+                        $"{nameof(RelaySchemaBuilderExtensions.AddGlobalObjectIdentification)} " +
+                        "is called during startup.")
+                    .Build();
+                throw new SchemaException(error);
+            }
+
             if (completionContext.ContextData.TryGetValue(
                     typeof(PolymorphicIdsOptions).FullName!,
                     out var o) &&
