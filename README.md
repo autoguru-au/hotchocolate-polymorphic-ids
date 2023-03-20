@@ -108,7 +108,8 @@ We strive to match Hot Chocolate's supported .NET target frameworks, though this
 
 | HotChocolate | Polymorphic IDs | Our docs   |
 | ------------ | --------------- | -----------|
-|     v12.6.0* |              v3 | right here |
+|      v13.0.0 |              v4 | right here |
+|     v12.6.0* |              v3 | [/v3/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v3/main) branch |
 |      v12.0.0 |              v2 | [/v2/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v2/main) branch |
 |      v11.1.0 |              v1 | [/v1/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v1/main) branch |
 

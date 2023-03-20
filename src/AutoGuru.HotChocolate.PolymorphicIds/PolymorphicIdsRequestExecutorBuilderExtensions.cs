@@ -6,8 +6,8 @@ namespace Microsoft.Extensions.DependencyInjection
     public static class PolymorphicIdsRequestExecutorBuilderExtensions
     {
         public static IRequestExecutorBuilder AddPolymorphicIds(
-                this IRequestExecutorBuilder builder,
-                PolymorphicIdsOptions? options = null)
+            this IRequestExecutorBuilder builder,
+            PolymorphicIdsOptions? options = null)
         {
             if (builder is null)
             {

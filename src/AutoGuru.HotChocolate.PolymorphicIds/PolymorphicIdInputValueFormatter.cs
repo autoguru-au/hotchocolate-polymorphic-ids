@@ -8,13 +8,13 @@ namespace AutoGuru.HotChocolate.Types.Relay
 {
     internal class PolymorphicIdInputValueFormatter : IInputValueFormatter
     {
-        private readonly NameString _schemaName;
-        private readonly NameString _nodeTypeName;
+        private readonly string _schemaName;
+        private readonly string _nodeTypeName;
         private readonly Type _idRuntimeType;
         private readonly IIdSerializer _idSerializer;
 
         public PolymorphicIdInputValueFormatter(
-            NameString nodeTypeName,
+            string nodeTypeName,
             Type idRuntimeType,
             IIdSerializer idSerializer)
         {
@@ -24,7 +24,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             _idSerializer = idSerializer;
         }
 
-        public object? OnAfterDeserialize(object? runtimeValue)
+        public object? Format(object? runtimeValue)
         {
             if (runtimeValue is null)
             {

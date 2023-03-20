@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using HotChocolate;
 using HotChocolate.Configuration;
@@ -16,7 +15,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
     {
         private const string StandardGlobalIdFormatterName = "GlobalIdInputValueFormatter";
 
-        // /src/HotChocolate/Core/src/Types/Types/WellKnownContextData.cs
+        // /src/HotChocolate/Core/src/Abstractions/WellKnownContextData.cs
         private const string GlobalIdSupportEnabledContextDataKey = "HotChocolate.Relay.GlobalId";
 
         private PolymorphicIdsOptions? _options;
@@ -25,8 +24,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
         public override void OnBeforeCompleteType(
             ITypeCompletionContext completionContext,
-            DefinitionBase? definition,
-            IDictionary<string, object?> contextData)
+            DefinitionBase definition)
         {
             var globalContextData = completionContext.ContextData;
             if (!globalContextData.ContainsKey(GlobalIdSupportEnabledContextDataKey))
@@ -90,13 +88,13 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 }
             }
 
-            base.OnBeforeCompleteType(completionContext, definition, contextData);
+            base.OnBeforeCompleteType(completionContext, definition);
         }
 
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
             ArgumentDefinition argumentDefinition,
-            NameString typeName,
+            string typeName,
             Type idRuntimeType)
         {
             var formatter = PolymorphicIdInputValueFormatterProvider.Get(
@@ -207,7 +205,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             }
 
             var idRuntimeType = idType.ElementType?.Source ?? idType.Source;
-            string nodeTypeName = idAttribute?.TypeName.HasValue ?? false
+            var nodeTypeName = idAttribute?.TypeName != null
                 ? idAttribute.TypeName
                 : completionContext.Type.Name;
 

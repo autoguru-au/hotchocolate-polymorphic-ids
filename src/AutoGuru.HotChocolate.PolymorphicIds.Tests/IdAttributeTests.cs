@@ -308,7 +308,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                         QueryRequestBuilder.New()
                             .SetQuery(_argumentsQuery)
                             .SetVariableValue("intId", intId)
-                            .SetVariableValue("longId", longId.ToString())
+                            .SetVariableValue("longId", longId?.ToString())
                             .SetVariableValue("stringId", stringId)
                             .SetVariableValue("guidId", guidId)
                             .Create());
