@@ -1,0 +1,115 @@
+repo_name: autoguru-au/hotchocolate-polymorphic-ids
+report_id: 69e5aa6e21ea4e2af1e4e280a8dc6825
+repo_type: Public
+timestamp: '2023-11-10T01:37:50+00:00'
+requested_by: benmccallum
+provider: github
+branch: main
+detected_tools_count: 9
+tools:
+- name: C#
+  description: Simple, general-purpose, object-oriented programming language for the
+    .NET platform
+  website_url: http://csharp.net
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/1015/1200px-C_Sharp_wordmark.svg.png
+  detection_source: Repo Metadata
+- name: ".NET"
+  description: A free, cross-platform, open source developer platform for building
+    many different types of applications
+  website_url: http://www.microsoft.com/net/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Frameworks (Full Stack)
+  image_url: https://img.stackshare.io/service/1014/IoPy1dce_400x400.png
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  last_updated_by: Ben McCallum
+  last_updated_on: 2022-01-04 10:47:42.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source: Repo Metadata
+- name: GitHub Actions
+  description: Automate your workflow from idea to production
+  website_url: https://github.com/features/actions
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source: ".github/workflows/main.yml"
+  last_updated_by: Ben McCallum
+  last_updated_on: 2023-03-20 07:43:36.000000000 Z
+- name: NuGet
+  description: The package manager for .NET
+  website_url: https://www.nuget.org/
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Package Managers
+  image_url: https://img.stackshare.io/service/2637/6I3oEOP4_400x400.jpg
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  last_updated_by: Ben McCallum
+  last_updated_on: 2021-04-07 08:00:24.000000000 Z
+- name: Visual Studio
+  description: State-of-the-art tools and services that you can use to create great
+    apps for devices, the cloud, and everything in between.
+  website_url: http://msdn.microsoft.com/en-us/vstudio/aa718325.aspx
+  open_source: false
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Integrated Development Environment
+  image_url: https://img.stackshare.io/service/1451/SR2hUhQN.png
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.sln
+  last_updated_by: Ben McCallum
+  last_updated_on: 2021-04-07 08:00:24.000000000 Z
+- name: xUnit
+  description: An open source, community-focused unit testing tool
+  website_url: http://xunit.github.io/
+  version: 2.4.1
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Testing Frameworks
+  image_url: https://img.stackshare.io/service/3077/ca5a327feb49ddfe1f4b11548907e5a1_400x400.png
+  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  last_updated_by: Ben McCallum
+  last_updated_on: 2021-04-07 08:00:24.000000000 Z
+- name: Shouldly
+  description: Shouldly - Assertion framework for .NET
+  package_url: https://www.nuget.org/Shouldly
+  version: 4.0.3
+  open_source: false
+  hosted_saas: false
+  category: Libraries
+  sub_category: NuGet Packages
+  image_url: https://img.stackshare.io/package/13821/default_d358fd76413e7b8cc458411fede039268825f8c2.png
+  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  last_updated_by: Ben McCallum
+  last_updated_on: 2022-01-04 10:47:42.000000000 Z
+- name: xunit.runner.visualstudio
+  description: Visual Studio 2012+ Test Explorer runner for the xUnit.net framework
+  package_url: https://www.nuget.org/xunit.runner.visualstudio
+  version: 2.4.3
+  license: Other
+  open_source: true
+  hosted_saas: false
+  category: Libraries
+  sub_category: NuGet Packages
+  image_url: https://img.stackshare.io/package/13260/default_d2db5a200c4fe2d08cbdb2174cc230708973870b.png
+  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  last_updated_by: Ben McCallum
+  last_updated_on: 2022-01-04 10:47:42.000000000 Z
