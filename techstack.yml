@@ -1,7 +1,8 @@
 repo_name: autoguru-au/hotchocolate-polymorphic-ids
 report_id: 69e5aa6e21ea4e2af1e4e280a8dc6825
+version: 0.1
 repo_type: Public
-timestamp: '2023-11-10T01:37:50+00:00'
+timestamp: '2024-01-05T09:03:45+00:00'
 requested_by: benmccallum
 provider: github
 branch: main
@@ -16,6 +17,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/1015/1200px-C_Sharp_wordmark.svg.png
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids
   detection_source: Repo Metadata
 - name: ".NET"
   description: A free, cross-platform, open source developer platform for building
@@ -27,6 +29,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Frameworks (Full Stack)
   image_url: https://img.stackshare.io/service/1014/IoPy1dce_400x400.png
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   last_updated_by: Ben McCallum
   last_updated_on: 2022-01-04 10:47:42.000000000 Z
@@ -38,6 +41,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Version Control System
   image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids
   detection_source: Repo Metadata
 - name: GitHub Actions
   description: Automate your workflow from idea to production
@@ -47,6 +51,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Continuous Integration
   image_url: https://img.stackshare.io/service/11563/actions.png
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/.github/workflows/main.yml
   detection_source: ".github/workflows/main.yml"
   last_updated_by: Ben McCallum
   last_updated_on: 2023-03-20 07:43:36.000000000 Z
@@ -58,6 +63,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Package Managers
   image_url: https://img.stackshare.io/service/2637/6I3oEOP4_400x400.jpg
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   last_updated_by: Ben McCallum
   last_updated_on: 2021-04-07 08:00:24.000000000 Z
@@ -70,6 +76,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Integrated Development Environment
   image_url: https://img.stackshare.io/service/1451/SR2hUhQN.png
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.sln
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.sln
   last_updated_by: Ben McCallum
   last_updated_on: 2021-04-07 08:00:24.000000000 Z
@@ -82,7 +89,7 @@ tools:
   category: Build, Test, Deploy
   sub_category: Testing Frameworks
   image_url: https://img.stackshare.io/service/3077/ca5a327feb49ddfe1f4b11548907e5a1_400x400.png
-  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   last_updated_by: Ben McCallum
   last_updated_on: 2021-04-07 08:00:24.000000000 Z
@@ -95,7 +102,7 @@ tools:
   category: Libraries
   sub_category: NuGet Packages
   image_url: https://img.stackshare.io/package/13821/default_d358fd76413e7b8cc458411fede039268825f8c2.png
-  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   last_updated_by: Ben McCallum
   last_updated_on: 2022-01-04 10:47:42.000000000 Z
@@ -109,7 +116,7 @@ tools:
   category: Libraries
   sub_category: NuGet Packages
   image_url: https://img.stackshare.io/package/13260/default_d2db5a200c4fe2d08cbdb2174cc230708973870b.png
-  detection_source_url: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
+  detection_source_url: https://github.com/autoguru-au/hotchocolate-polymorphic-ids/blob/main/src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   detection_source: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj
   last_updated_by: Ben McCallum
   last_updated_on: 2022-01-04 10:47:42.000000000 Z
