@@ -4,7 +4,7 @@
     <Product>Polymorphic IDs.</Product>
     <Description>Polymorphic Relay IDs for HotChocolate</Description>
     <PackageTags>GraphQL HotChocolate Relay</PackageTags>
-    <Version>4.0.0-rc.1</Version>
+    <Version>4.0.0</Version>
 
     <PackageProjectUrl>https://github.com/autoguru-au/hotchocolate-polymorphic-ids</PackageProjectUrl>
     <RepositoryUrl>https://github.com/autoguru-au/hotchocolate-polymorphic-ids</RepositoryUrl>
