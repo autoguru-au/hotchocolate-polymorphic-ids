@@ -61,6 +61,6 @@ jobs:
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-          dotnet build "$SOLUTION_FILE" --configuration
+          dotnet build "$SOLUTION_FILE" --configuration Debug
           dotnet test "$SOLUTION_FILE" --no-build --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
