@@ -28,15 +28,8 @@ jobs:
           echo "✅ Found solution file: $SOLUTION_FILE"
           echo "SOLUTION_FILE=$SOLUTION_FILE" >> $GITHUB_ENV
         
-      - name: Restore dependencies
-        run: dotnet restore "$SOLUTION_FILE"
-      
-      - name: Build solution
-        run: dotnet build "$SOLUTION_FILE" --configuration Debug
-
-      - name: Run tests and generate coverage
-        run: |
-          dotnet test --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
+      - name: Run tests with coverage
+        run: dotnet test "$SOLUTION_FILE" --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
 
       - name: Upload test results (optional, for visibility)
         uses: actions/upload-artifact@v4
@@ -60,5 +53,5 @@ jobs:
             /d:sonar.verbose=true \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-          dotnet build
+          dotnet test "$SOLUTION_FILE" --no-build
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
