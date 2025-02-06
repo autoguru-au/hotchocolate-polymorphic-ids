@@ -1,0 +1,54 @@
+name: SonarQube Analysis (C#)
+
+on: push
+
+jobs:
+  sonarqube:
+    name: Analyze with SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Debug
+
+      - name: Run tests and generate coverage
+        run: |
+          dotnet test --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
+
+      - name: Upload test results (optional, for visibility)
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: ./TestResults/
+
+      - name: Run SonarQube analysis
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin \
+            /k:"${{ github.event.repository.name }}" \
+            /n:"${{ github.event.repository.name }}" \
+            /v:"${{ github.sha }}" \
+            /d:sonar.cs.opencover.reportsPaths="./TestResults/**/coverage.cobertura.xml" \
+            /d:sonar.inclusions="**/*.cs" \
+            /d:sonar.exclusions="**/bin/**,**/obj/**" \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.verbose=true \
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
