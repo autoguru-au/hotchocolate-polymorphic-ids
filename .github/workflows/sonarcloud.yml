@@ -19,7 +19,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore $(find . -name "*.sln" | head -n 1)
 
       - name: Build project
         run: dotnet build --configuration Debug
