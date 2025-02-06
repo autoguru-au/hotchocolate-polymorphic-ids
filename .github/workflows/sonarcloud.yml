@@ -35,8 +35,9 @@ jobs:
           echo "SOLUTION_FILE=$SOLUTION_FILE" >> $GITHUB_ENV
         
       - name: Run tests with coverage
-        run: dotnet test "$SOLUTION_FILE" --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
-
+        run: |
+          dotnet test "$SOLUTION_FILE" --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
+          
       - name: Upload test results (optional, for visibility)
         uses: actions/upload-artifact@v4
         with:
@@ -59,5 +60,7 @@ jobs:
             /d:sonar.verbose=true \
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-          dotnet test "$SOLUTION_FILE" --no-build
+
+          dotnet build "$SOLUTION_FILE" --configuration Debug
+          dotnet test "$SOLUTION_FILE" --no-build --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults/
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
