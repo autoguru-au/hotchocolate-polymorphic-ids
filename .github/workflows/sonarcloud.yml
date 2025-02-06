@@ -18,11 +18,21 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Detect solution file
+        run: |
+          SOLUTION_FILE=$(find . -name "*.sln" | head -n 1)
+          if [ -z "$SOLUTION_FILE" ]; then
+            echo "❌ No solution file found. Exiting..."
+            exit 1
+          fi
+          echo "✅ Found solution file: $SOLUTION_FILE"
+          echo "SOLUTION_FILE=$SOLUTION_FILE" >> $GITHUB_ENV
+        
       - name: Restore dependencies
-        run: dotnet restore $(find . -name "*.sln" | head -n 1)
-
-      - name: Build project
-        run: dotnet build --configuration Debug
+        run: dotnet restore "$SOLUTION_FILE"
+      
+      - name: Build solution
+        run: dotnet build "$SOLUTION_FILE" --configuration Debug
 
       - name: Run tests and generate coverage
         run: |
