@@ -21,6 +21,9 @@ jobs:
             7.0.x
             8.0.x
 
+      - name: Install SonarScanner for .NET
+        run: dotnet tool install --global dotnet-sonarscanner
+
       - name: Detect solution file
         run: |
           SOLUTION_FILE=$(find . -name "*.sln" | head -n 1)
