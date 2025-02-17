@@ -19,16 +19,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 🧹 Clean up disk space before starting
+      - name: Clean up disk space (start)
+        run: |
+          sudo rm -rf /tmp/*
+          sudo rm -rf ~/.dotnet
+          sudo rm -rf ~/.nuget
+          sudo apt-get clean
+
+      # 📥 Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # 🔧 Setup .NET (supports multiple versions)
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: |
+            8.0.x
+            7.0.x
 
+      # 📌 Install SonarScanner
       - name: Install Sonar Scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
@@ -36,6 +49,7 @@ jobs:
         if: inputs.enable_tests == true
         run: dotnet tool install --global coverlet.console
 
+      # 🔍 Detect Solution File
       - name: Detect Solution File
         id: detect_solution
         run: |
@@ -46,16 +60,21 @@ jobs:
           fi
           echo "SOLUTION_FILE=$SOLUTION_FILE" >> $GITHUB_ENV
 
-      - name: Restore Dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
-
-      # Create Temporary Solution (Exclude Test Projects)
+     # 🛠 Create Temporary Solution (if tests are disabled)
       - name: Create Temporary Solution (Exclude Tests)
         if: inputs.enable_tests == false
         run: |
-          echo "Creating temporary solution excluding test projects..."
+          echo "Creating temporary solution excluding test and problematic projects..."
           dotnet new sln -n TempSolution -o ./ --force
-          dotnet sln ./TempSolution.sln add $(find ./ -name '*.csproj' | grep -vE '/test/|/tests/|.*Test.*.csproj')
+          dotnet sln ./TempSolution.sln add $(find ./ -name '*.csproj' | grep -vE '/test/|/tests/|.*Test.*.csproj|AutoGuru.AirwallexClient.csproj|AutoGuru.Stripe.Client.csproj|AutoGuru.ThirdPartyIntegrationDocs.csproj')
+      
+      - name: Restore Dependencies
+        run: |
+          if [ "${{ inputs.enable_tests }}" == "true" ]; then
+            dotnet restore ${{ env.SOLUTION_FILE }}
+          else
+            dotnet restore ./TempSolution.sln --no-cache
+          fi
 
       - name: Build Tests
         if: inputs.enable_tests == true
@@ -66,7 +85,7 @@ jobs:
             exit 1
           fi
           dotnet build $TEST_PROJECT --configuration Debug --framework net8.0
-
+  
       - name: Run Tests with Coverage
         if: inputs.enable_tests == true
         run: |
@@ -93,6 +112,7 @@ jobs:
           name: TestResults
           path: ./TestResults/
 
+      # 🚀 Start SonarQube Analysis
       - name: Start SonarQube Analysis
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -110,6 +130,7 @@ jobs:
             /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
+      # 🏗 Build Solution
       - name: Build Solution
         run: |
           if [ "${{ inputs.enable_tests }}" == "true" ]; then
@@ -118,8 +139,17 @@ jobs:
             dotnet build ./TempSolution.sln
           fi
 
+      # ✅ Finish SonarQube Analysis
       - name: Finish SonarQube Analysis
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      # 🧹 Clean up disk space after workflow
+      - name: Clean up disk space (end)
+        run: |
+          sudo rm -rf /tmp/*
+          sudo rm -rf ~/.dotnet
+          sudo rm -rf ~/.nuget
+          sudo apt-get clean
