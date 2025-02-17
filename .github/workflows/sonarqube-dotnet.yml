@@ -1,0 +1,125 @@
+name: SonarQube Analysis (.NET)
+
+on:
+  workflow_call:
+    inputs:
+      enable_tests:
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      SONAR_HOST_URL:
+        required: true
+      SONAR_TOKEN:
+        required: true
+
+jobs:
+  sonarqube:
+    name: Analyze .NET with SonarQube
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Sonar Scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Install Coverlet.Console
+        if: inputs.enable_tests == true
+        run: dotnet tool install --global coverlet.console
+
+      - name: Detect Solution File
+        id: detect_solution
+        run: |
+          SOLUTION_FILE=$(find . -name '*.sln' | head -n 1)
+          if [ -z "$SOLUTION_FILE" ]; then
+            echo "❌ No solution file found! Make sure your repository has a .sln file."
+            exit 1
+          fi
+          echo "SOLUTION_FILE=$SOLUTION_FILE" >> $GITHUB_ENV
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      # Create Temporary Solution (Exclude Test Projects)
+      - name: Create Temporary Solution (Exclude Tests)
+        if: inputs.enable_tests == false
+        run: |
+          echo "Creating temporary solution excluding test projects..."
+          dotnet new sln -n TempSolution -o ./ --force
+          dotnet sln ./TempSolution.sln add $(find ./ -name '*.csproj' | grep -vE '/test/|/tests/|.*Test.*.csproj')
+
+      - name: Build Tests
+        if: inputs.enable_tests == true
+        run: |
+          TEST_PROJECT=$(find ./ -name '*.csproj' | grep -E '/test/|/tests/|.*Test.*.csproj' | head -n 1)
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "❌ No test project found! Skipping test build."
+            exit 1
+          fi
+          dotnet build $TEST_PROJECT --configuration Debug --framework net8.0
+
+      - name: Run Tests with Coverage
+        if: inputs.enable_tests == true
+        run: |
+          TEST_PROJECT=$(find ./ -name '*.csproj' | grep -E '/test/|/tests/|.*Test.*.csproj' | head -n 1)
+          if [ -z "$TEST_PROJECT" ]; then
+            echo "❌ No test project found! Skipping tests."
+            exit 1
+          fi
+          TEST_DLL=$(find ./ -name '*.dll' | grep '/bin/Debug/net8.0/' | grep 'Test' | head -n 1)
+          if [ -z "$TEST_DLL" ]; then
+            echo "❌ No test DLL found! Skipping coverage."
+            exit 1
+          fi
+          coverlet $TEST_DLL \
+            --target "dotnet" \
+            --targetargs "test $TEST_PROJECT --no-build --framework net8.0 --logger trx --results-directory ./TestResults/" \
+            --output ./TestResults/Coverage/coverage.opencover.xml \
+            --format opencover
+
+      - name: Upload Test Results
+        if: inputs.enable_tests == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: ./TestResults/
+
+      - name: Start SonarQube Analysis
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner begin \
+            /k:"${{ github.event.repository.name }}" \
+            /n:"${{ github.event.repository.name }}" \
+            /v:"${{ github.sha }}" \
+            /d:sonar.cs.opencover.reportsPaths="./TestResults/Coverage/coverage.opencover.xml" \
+            /d:sonar.inclusions="**/*.cs" \
+            /d:sonar.exclusions="**/bin/**,**/obj/**" \
+            /d:sonar.scanner.skipJreProvisioning=true \
+            /d:sonar.verbose=true \
+            /d:sonar.host.url="${{ secrets.SONAR_HOST_URL }}" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+
+      - name: Build Solution
+        run: |
+          if [ "${{ inputs.enable_tests }}" == "true" ]; then
+            dotnet build ${{ env.SOLUTION_FILE }}
+          else
+            dotnet build ./TempSolution.sln
+          fi
+
+      - name: Finish SonarQube Analysis
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"

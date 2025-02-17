@@ -1,0 +1,11 @@
+name: SonarQube Analysis
+
+on:
+  push
+
+jobs:
+  sonarqube:
+    uses: ./.github/workflows/sonarqube-dotnet.yml
+    with:
+      enable_tests: false
+    secrets: inherit

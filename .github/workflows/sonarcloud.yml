@@ -1,6 +1,9 @@
 name: SonarQube Analysis (C#)
 
-on: push
+on:
+  push:
+    branches:
+      - mainxx
 
 jobs:
   sonarqube:
