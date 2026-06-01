@@ -54,8 +54,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     var idInfo = GetIdInfo(completionContext, inputFieldDefinition);
                     if (idInfo != null && ShouldIntercept(idInfo.Value.IdRuntimeType))
                     {
-                        InsertFormatter(
-                            completionContext,
+                        DeferFormatterReplacement(
                             inputFieldDefinition,
                             idInfo.Value.NodeTypeName,
                             idInfo.Value.IdRuntimeType);
@@ -78,8 +77,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
                         var idInfo = GetIdInfo(completionContext, argumentDefinition);
                         if (idInfo != null && ShouldIntercept(idInfo.Value.IdRuntimeType))
                         {
-                            InsertFormatter(
-                                completionContext,
+                            DeferFormatterReplacement(
                                 argumentDefinition,
                                 idInfo.Value.NodeTypeName,
                                 idInfo.Value.IdRuntimeType);
@@ -91,29 +89,52 @@ namespace AutoGuru.HotChocolate.Types.Relay
             base.OnBeforeCompleteType(completionContext, definition);
         }
 
+        // Hot Chocolate adds its own GlobalIdInputValueFormatter during the BeforeCompletion
+        // configuration phase, which runs *after* OnBeforeCompleteType. So we register our own
+        // BeforeCompletion configuration (appended after Hot Chocolate's) that runs in the same
+        // phase, by which time the default formatter is present and can be replaced.
+        private static void DeferFormatterReplacement(
+            ArgumentDefinition argumentDefinition,
+            string typeName,
+            Type idRuntimeType)
+        {
+            argumentDefinition.Configurations.Add(
+                new CompleteConfiguration(
+                    (completionContext, _) => InsertFormatter(
+                        completionContext,
+                        argumentDefinition,
+                        typeName,
+                        idRuntimeType),
+                    argumentDefinition,
+                    ApplyConfigurationOn.BeforeCompletion));
+        }
+
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
             ArgumentDefinition argumentDefinition,
             string typeName,
             Type idRuntimeType)
         {
-            var formatter = PolymorphicIdInputValueFormatterProvider.Get(
-                completionContext.Services,
+            var formatter = new PolymorphicIdInputValueFormatter(
                 typeName,
-                idRuntimeType);
+                idRuntimeType,
+                completionContext.DescriptorContext.NodeIdSerializerAccessor);
 
-            var defaultFormatter = argumentDefinition.Formatters
+            var formatters = argumentDefinition.Formatters;
+            var defaultFormatter = formatters
                 .FirstOrDefault(f => f.GetType().Name == StandardGlobalIdFormatterName);
 
-            if (defaultFormatter == null)
+            if (defaultFormatter is null)
             {
-                argumentDefinition.Formatters.Insert(0, formatter);
+                formatters.Insert(0, formatter);
             }
             else
             {
-                argumentDefinition.Formatters.Insert(
-                    argumentDefinition.Formatters.IndexOf(defaultFormatter) - 1,
-                    formatter);
+                // Replace Hot Chocolate's GlobalIdInputValueFormatter rather than running
+                // before it. As of HC14 formatters are chained, and the built-in formatter
+                // throws on the raw (database) id values we intentionally produce, so it must
+                // not run after ours.
+                formatters[formatters.IndexOf(defaultFormatter)] = formatter;
             }
         }
 

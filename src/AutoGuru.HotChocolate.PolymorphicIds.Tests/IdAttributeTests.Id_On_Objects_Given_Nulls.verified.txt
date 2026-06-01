@@ -3,18 +3,18 @@
 {
   "data": {
     "foo": {
-      "someId": "QmFyCmQx",
+      "someId": "QmFyOjE=",
       "someNullableId": null,
       "someIds": [
-        "QmFyCmkx"
+        "QmFyOjE="
       ],
       "someNullableIds": [
-        "QmFyCmkx",
-        null
+        "QmFyOjE=",
+        "QmFyOjA="
       ]
     }
   }
 },
-  someId: U29tZQpkMQ==,
-  someIntId: U29tZQppMQ==
+  someId: U29tZTox,
+  someIntId: U29tZTox
 }
