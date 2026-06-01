@@ -20,10 +20,10 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
     public class IdAttributeTests
     {
-        private static readonly RequestExecutorOptions _executorOptions = new ()
+        private static readonly Action<RequestExecutorOptions> _executorOptions = o =>
         {
-            ExecutionTimeout = TimeSpan.FromMinutes(1),
-            IncludeExceptionDetails = true
+            o.ExecutionTimeout = TimeSpan.FromMinutes(1);
+            o.IncludeExceptionDetails = true;
         };
 
         private const string _argumentsQuery = @"
@@ -107,13 +107,16 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             // act
             var result = await executor
                 .ExecuteAsync(
-                    QueryRequestBuilder.New()
-                        .SetQuery(_argumentsQuery)
-                        .SetVariableValue("intId", intId)
-                        .SetVariableValue("longId", longId.ToString())
-                        .SetVariableValue("stringId", stringId)
-                        .SetVariableValue("guidId", guidId.ToString())
-                        .Create());
+                    OperationRequestBuilder.New()
+                        .SetDocument(_argumentsQuery)
+                        .SetVariableValues(new Dictionary<string, object?>
+                        {
+                            ["intId"] = intId,
+                            ["longId"] = longId.ToString(),
+                            ["stringId"] = stringId,
+                            ["guidId"] = guidId.ToString(),
+                        })
+                        .Build());
 
             // assert
             var verifySettings = new VerifySettings();
@@ -137,12 +140,12 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable(_executorOptions)
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo {
                                     intId(id: ""SomethingInvalid"")
                                 }")
-                            .Create());
+                            .Build());
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -175,8 +178,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable(_executorOptions)
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo ($someId: ID! $someIntId: ID!) {
                                     foo(input: {
                                         someId: $someId
@@ -194,11 +197,12 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         }
                                     }
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .SetVariableValue("someNullableId", null)
-                            .SetVariableValue("someIntId", someIntId)
-                            .SetVariableValue("someNullableIntId", null)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                                ["someIntId"] = someIntId,
+                            })
+                            .Build());
 
             // assert
             var verifySettings = new VerifySettings();
@@ -223,8 +227,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable(_executorOptions)
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo ($someId: ID!) {
                                     foo(input: {
                                         someId: $someId
@@ -239,8 +243,11 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         }
                                     }
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -265,14 +272,17 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             var result = await schema
                     .MakeExecutable(_executorOptions)
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query lol ($someId: ID!) {
                                     lol(input: {
                                         someIdCustomName: $someId })
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(
@@ -285,15 +295,23 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
         #region Standard ID still works
 
+        // NOTE: This exercises Hot Chocolate's built-in formatter (no AddPolymorphicIds).
+        // As of HC14 there is an upstream bug where a nullable list of a value-type ID
+        // (e.g. int?[], long?[], Guid?[]) silently converts null elements to the type
+        // default (0 / Guid.Empty) instead of null - see
+        // https://github.com/ChilliCream/graphql-platform/issues/9811. The verified
+        // snapshot therefore shows e.g. "1, 0" for nullableIntIdList. Revisit (and restore
+        // null) if/when that bug is fixed upstream. Our own formatter preserves nulls
+        // correctly - see PolyId_On_Arguments.
         [Fact]
         public async Task Id_On_Arguments()
         {
             // arrange
-            var idSerializer = new IdSerializer();
-            var intId = idSerializer.Serialize("Some", 1);
-            var longId = idSerializer.Serialize("Some", long.MaxValue);
-            var stringId = idSerializer.Serialize("Some", "abc");
-            var guidId = idSerializer.Serialize("Some", new Guid("26a2dc8f-4dab-408c-88c6-523a0a89a2b5"));
+            var idSerializer = new DefaultNodeIdSerializer();
+            var intId = idSerializer.Format("Some", 1);
+            var longId = idSerializer.Format("Some", long.MaxValue);
+            var stringId = idSerializer.Format("Some", "abc");
+            var guidId = idSerializer.Format("Some", new Guid("26a2dc8f-4dab-408c-88c6-523a0a89a2b5"));
 
             // act
             var result =
@@ -305,13 +323,16 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(_argumentsQuery)
-                            .SetVariableValue("intId", intId)
-                            .SetVariableValue("longId", longId?.ToString())
-                            .SetVariableValue("stringId", stringId)
-                            .SetVariableValue("guidId", guidId)
-                            .Create());
+                        OperationRequestBuilder.New()
+                            .SetDocument(_argumentsQuery)
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["intId"] = intId,
+                                ["longId"] = longId,
+                                ["stringId"] = stringId,
+                                ["guidId"] = guidId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -321,9 +342,9 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         public async Task Id_On_Objects()
         {
             // arrange
-            var idSerializer = new IdSerializer();
-            var someId = idSerializer.Serialize("Some", "1");
-            var someIntId = idSerializer.Serialize("Some", 1);
+            var idSerializer = new DefaultNodeIdSerializer();
+            var someId = idSerializer.Format("Some", "1");
+            var someIntId = idSerializer.Format("Some", 1);
 
             // act
             var result =
@@ -334,8 +355,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo ($someId: ID! $someIntId: ID!) {
                                     foo(input: {
                                         someId: $someId
@@ -352,11 +373,12 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         }
                                     }
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .SetVariableValue("someNullableId", null)
-                            .SetVariableValue("someIntId", someIntId)
-                            .SetVariableValue("someNullableIntId", null)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                                ["someIntId"] = someIntId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(new
@@ -367,13 +389,19 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             });
         }
 
+        // NOTE: This exercises Hot Chocolate's built-in formatter (no AddPolymorphicIds).
+        // someNullableIds is a nullable list of a value-type ID, so it is affected by the
+        // upstream HC14 bug where null list elements become the type default instead of
+        // null - see https://github.com/ChilliCream/graphql-platform/issues/9811. The
+        // verified snapshot reflects that (the null becomes an encoded "0"). Revisit if/when
+        // it's fixed upstream. Our own formatter preserves nulls - see PolyId_On_Objects.
         [Fact]
         public async Task Id_On_Objects_Given_Nulls()
         {
             // arrange
-            var idSerializer = new IdSerializer();
-            var someId = idSerializer.Serialize("Some", "1");
-            var someIntId = idSerializer.Serialize("Some", 1);
+            var idSerializer = new DefaultNodeIdSerializer();
+            var someId = idSerializer.Format("Some", "1");
+            var someIntId = idSerializer.Format("Some", 1);
 
             // act
             var result =
@@ -384,8 +412,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo ($someId: ID! $someIntId: ID!) {
                                     foo(input: {
                                         someId: $someId
@@ -402,11 +430,12 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         }
                                     }
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .SetVariableValue("someNullableId", null)
-                            .SetVariableValue("someIntId", someIntId)
-                            .SetVariableValue("someNullableIntId", null)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                                ["someIntId"] = someIntId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(new
@@ -421,8 +450,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         public async Task Id_On_Objects_InvalidType()
         {
             // arrange
-            var idSerializer = new IdSerializer();
-            var someId = idSerializer.Serialize("Some", Guid.Empty);
+            var idSerializer = new DefaultNodeIdSerializer();
+            var someId = idSerializer.Format("Some", Guid.Empty);
 
             // act
             var result =
@@ -433,8 +462,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     .Create()
                     .MakeExecutable()
                     .ExecuteAsync(
-                        QueryRequestBuilder.New()
-                            .SetQuery(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
                                 @"query foo ($someId: ID!) {
                                     foo(input: { someId: $someId someIds: [$someId] }) {
                                         someId
@@ -443,8 +472,11 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                         }
                                     }
                                 }")
-                            .SetVariableValue("someId", someId)
-                            .Create());
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["someId"] = someId,
+                            })
+                            .Build());
 
             // assert
             await Verifier.Verify(new
@@ -472,8 +504,8 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
             var result = await executableSchema
                 .ExecuteAsync(
-                    QueryRequestBuilder.New()
-                        .SetQuery(
+                    OperationRequestBuilder.New()
+                        .SetDocument(
                             @"query foo ($someId: ID!) {
                                 foo(input: { someId: $someId someIds: [$someId] }) {
                                     someId
@@ -482,8 +514,11 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                     }
                                 }
                             }")
-                        .SetVariableValue("someId", someId)
-                        .Create());
+                        .SetVariableValues(new Dictionary<string, object?>
+                        {
+                            ["someId"] = someId,
+                        })
+                        .Build());
 
             // assert
             await Verifier.Verify(new

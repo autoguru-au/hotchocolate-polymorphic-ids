@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using HotChocolate;
 using HotChocolate.Types;
@@ -6,22 +6,23 @@ using HotChocolate.Types.Relay;
 
 namespace AutoGuru.HotChocolate.Types.Relay
 {
-    internal class PolymorphicIdInputValueFormatter : IInputValueFormatter
+    internal sealed class PolymorphicIdInputValueFormatter : IInputValueFormatter
     {
-        private readonly string _schemaName;
         private readonly string _nodeTypeName;
         private readonly Type _idRuntimeType;
-        private readonly IIdSerializer _idSerializer;
+        private readonly Type _underlyingIdRuntimeType;
+        private readonly INodeIdSerializerAccessor _serializerAccessor;
+        private INodeIdSerializer? _serializer;
 
         public PolymorphicIdInputValueFormatter(
             string nodeTypeName,
             Type idRuntimeType,
-            IIdSerializer idSerializer)
+            INodeIdSerializerAccessor serializerAccessor)
         {
-            _schemaName = null!; // not needed during deserialization
             _nodeTypeName = nodeTypeName;
             _idRuntimeType = idRuntimeType;
-            _idSerializer = idSerializer;
+            _underlyingIdRuntimeType = Nullable.GetUnderlyingType(idRuntimeType) ?? idRuntimeType;
+            _serializerAccessor = serializerAccessor;
         }
 
         public object? Format(object? runtimeValue)
@@ -31,28 +32,33 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 return null;
             }
 
+            // A single id value, e.g. "1" or a fully serialized global id string.
             if (runtimeValue is string s)
             {
                 return DeserializeId(s);
             }
 
+            // A list of id values. We replace Hot Chocolate's GlobalIdInputValueFormatter
+            // (rather than chaining before it) so we must produce the final internal ids
+            // here, as a strongly-typed array of the element runtime type. This mirrors
+            // the contract of the built-in formatter (HotChocolate.Types.Relay) and
+            // correctly preserves nulls for nullable id lists.
             if (runtimeValue is IEnumerable<string?> stringEnumerable)
             {
                 try
                 {
-                    var list = new List<IdValue?>();
+                    var values = new List<object?>();
                     foreach (var sv in stringEnumerable)
                     {
-                        if (sv is null)
-                        {
-                            list.Add(null);
-                        }
-                        else
-                        {
-                            list.Add(DeserializeId(sv));
-                        }
+                        values.Add(sv is null ? null : DeserializeId(sv));
                     }
-                    return list;
+
+                    var result = Array.CreateInstance(_idRuntimeType, values.Count);
+                    for (var i = 0; i < values.Count; i++)
+                    {
+                        result.SetValue(values[i], i);
+                    }
+                    return result;
                 }
                 catch
                 {
@@ -65,45 +71,50 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 }
             }
 
-            // Let fall through to default formatter
+            // Already an internal id (e.g. a NodeId produced upstream) - unwrap it.
+            if (runtimeValue is NodeId nodeId)
+            {
+                return nodeId.InternalId;
+            }
+
+            // Let anything else fall through unchanged.
             return runtimeValue;
         }
 
-        private IdValue DeserializeId(string value)
+        private object DeserializeId(string value)
         {
-            if ((_idRuntimeType == typeof(int) || _idRuntimeType == typeof(int?)) &&
-                value is string rawIntString &&
-                int.TryParse(rawIntString, out var intValue))
+            if (_underlyingIdRuntimeType == typeof(int) &&
+                int.TryParse(value, out var intValue))
             {
-                return new IdValue(_schemaName, _nodeTypeName, intValue);
+                return intValue;
             }
 
-            if ((_idRuntimeType == typeof(long) || _idRuntimeType == typeof(long?)) &&
-                value is string rawLongString &&
-                long.TryParse(rawLongString, out var longValue))
+            if (_underlyingIdRuntimeType == typeof(long) &&
+                long.TryParse(value, out var longValue))
             {
-                return new IdValue(_schemaName, _nodeTypeName, longValue);
+                return longValue;
             }
 
-            if ((_idRuntimeType == typeof(Guid) || _idRuntimeType == typeof(Guid?)) &&
-                value is string rawGuidString &&
-                Guid.TryParse(rawGuidString, out var guidValue))
+            if (_underlyingIdRuntimeType == typeof(Guid) &&
+                Guid.TryParse(value, out var guidValue))
             {
-                return new IdValue(_schemaName, _nodeTypeName, guidValue);
+                return guidValue;
             }
+
+            _serializer ??= _serializerAccessor.Serializer;
 
             try
             {
-                return _idSerializer.Deserialize(value);
+                return _serializer.Parse(value, _underlyingIdRuntimeType).InternalId;
             }
             catch
             {
-                // If the runtime type is a string,
-                // allow to fall through as this is likely a non-serialized id.
-                // There is a slight chance it's not, but we let it slide
-                if (_idRuntimeType == typeof(string))
+                // If the runtime type is a string, allow it to fall through as this is
+                // likely a non-serialized (database) id. There is a slight chance it's
+                // not, but we let it slide.
+                if (_underlyingIdRuntimeType == typeof(string))
                 {
-                    return new IdValue(_schemaName, _nodeTypeName, value);
+                    return value;
                 }
             }
 

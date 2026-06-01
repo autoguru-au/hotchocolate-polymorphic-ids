@@ -4,4 +4,8 @@
     <PackageReference Include="HotChocolate.Execution" Version="$(HotChocolateVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="AutoGuru.HotChocolate.PolymorphicIds.Tests" />
+  </ItemGroup>
+
 </Project>

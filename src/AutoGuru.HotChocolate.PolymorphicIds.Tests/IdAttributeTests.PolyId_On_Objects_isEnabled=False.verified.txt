@@ -1,7 +1,20 @@
-{
+﻿{
   "errors": [
     {
-      "message": "The ID \u00601\u0060 has an invalid format."
+      "message": "The node ID string has an invalid format.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 37
+        }
+      ],
+      "path": [
+        "foo"
+      ],
+      "extensions": {
+        "originalValue": "1"
+      }
     }
-  ]
+  ],
+  "data": null
 }

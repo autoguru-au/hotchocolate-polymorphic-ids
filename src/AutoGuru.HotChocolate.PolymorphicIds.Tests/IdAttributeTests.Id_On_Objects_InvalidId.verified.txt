@@ -3,9 +3,22 @@
 {
   "errors": [
     {
-      "message": "The ID \u0060abc\u0060 has an invalid format."
+      "message": "The node ID string has an invalid format.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 33
+        }
+      ],
+      "path": [
+        "foo"
+      ],
+      "extensions": {
+        "originalValue": "abc"
+      }
     }
-  ]
+  ],
+  "data": null
 },
   someId: abc
 }

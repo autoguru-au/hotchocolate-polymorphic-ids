@@ -3,9 +3,22 @@
 {
   "errors": [
     {
-      "message": "The IDs \u0060U29tZQpnMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=\u0060 have an invalid format."
+      "message": "No serializer registered for type `Some`.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 37
+        }
+      ],
+      "path": [
+        "foo"
+      ],
+      "extensions": {
+        "typeName": "Some"
+      }
     }
-  ]
+  ],
+  "data": null
 },
-  someId: U29tZQpnMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=
+  someId: U29tZToAAAAAAAAAAAAAAAAAAAAA
 }

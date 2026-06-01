@@ -1,7 +1,17 @@
-{
+﻿{
   "errors": [
     {
-      "message": "The IDs \u0060SomethingInvalid\u0060 have an invalid format."
+      "message": "The IDs `SomethingInvalid` have an invalid format.",
+      "locations": [
+        {
+          "line": 2,
+          "column": 37
+        }
+      ],
+      "path": [
+        "foo"
+      ]
     }
-  ]
+  ],
+  "data": null
 }
