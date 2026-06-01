@@ -296,13 +296,13 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         #region Standard ID still works
 
         // NOTE: This exercises Hot Chocolate's built-in formatter (no AddPolymorphicIds).
-        // As of HC14 there is an upstream bug where a nullable list of a value-type ID
-        // (e.g. int?[], long?[], Guid?[]) silently converts null elements to the type
-        // default (0 / Guid.Empty) instead of null - see
-        // https://github.com/ChilliCream/graphql-platform/issues/9811. The verified
-        // snapshot therefore shows e.g. "1, 0" for nullableIntIdList. Revisit (and restore
-        // null) if/when that bug is fixed upstream. Our own formatter preserves nulls
-        // correctly - see PolyId_On_Arguments.
+        // HC14 had an upstream bug where a nullable list of a value-type ID (int?[],
+        // long?[], Guid?[]) dropped null elements to the type default (0 / Guid.Empty) -
+        // see https://github.com/ChilliCream/graphql-platform/issues/9811. That was fixed
+        // in HC15.0.0 (RelayIdFieldHelpers now derives the list element type via .Source
+        // instead of .Type), so the snapshot now correctly shows "1, null" for
+        // nullableIntIdList. Our own formatter preserved nulls on HC14 too - see
+        // PolyId_On_Arguments.
         [Fact]
         public async Task Id_On_Arguments()
         {
@@ -390,11 +390,11 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         }
 
         // NOTE: This exercises Hot Chocolate's built-in formatter (no AddPolymorphicIds).
-        // someNullableIds is a nullable list of a value-type ID, so it is affected by the
-        // upstream HC14 bug where null list elements become the type default instead of
-        // null - see https://github.com/ChilliCream/graphql-platform/issues/9811. The
-        // verified snapshot reflects that (the null becomes an encoded "0"). Revisit if/when
-        // it's fixed upstream. Our own formatter preserves nulls - see PolyId_On_Objects.
+        // someNullableIds is a nullable list of a value-type ID, which hit the upstream
+        // HC14 bug where null list elements became the type default - see
+        // https://github.com/ChilliCream/graphql-platform/issues/9811. Fixed in HC15.0.0,
+        // so the snapshot now keeps the null (rather than an encoded "0"). Our own
+        // formatter preserved nulls on HC14 too - see PolyId_On_Objects.
         [Fact]
         public async Task Id_On_Objects_Given_Nulls()
         {

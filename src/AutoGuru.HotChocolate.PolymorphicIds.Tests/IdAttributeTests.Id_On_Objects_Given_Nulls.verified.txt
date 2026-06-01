@@ -10,7 +10,7 @@
       ],
       "someNullableIds": [
         "QmFyOjE=",
-        "QmFyOjA="
+        null
       ]
     }
   }
