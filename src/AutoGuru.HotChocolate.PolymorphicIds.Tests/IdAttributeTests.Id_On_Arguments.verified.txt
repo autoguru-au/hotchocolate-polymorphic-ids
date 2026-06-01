@@ -4,12 +4,12 @@
     "nullableIntId": "1",
     "nullableIntIdGivenNull": "null",
     "intIdList": "1",
-    "nullableIntIdList": "1, 0",
+    "nullableIntIdList": "1, null",
     "longId": "9223372036854775807",
     "nullableLongId": "9223372036854775807",
     "nullableLongIdGivenNull": "null",
     "longIdList": "9223372036854775807",
-    "nullableLongIdList": "9223372036854775807, 0",
+    "nullableLongIdList": "9223372036854775807, null",
     "stringId": "abc",
     "nullableStringId": "abc",
     "nullableStringIdGivenNull": "null",
@@ -19,6 +19,6 @@
     "nullableGuidId": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5",
     "nullableGuidIdGivenNull": "null",
     "guidIdList": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5, 26a2dc8f-4dab-408c-88c6-523a0a89a2b5",
-    "nullableGuidIdList": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5, 00000000-0000-0000-0000-000000000000, 26a2dc8f-4dab-408c-88c6-523a0a89a2b5"
+    "nullableGuidIdList": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5, null, 26a2dc8f-4dab-408c-88c6-523a0a89a2b5"
   }
 }
