@@ -41,12 +41,6 @@ jobs:
           flags: integration
           files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
 
-      # --- Publish: pack -> push to NuGet -> tag + GitHub release ---
-      # Replaces the former rohith/publish-nuget and actions/create-release actions
-      # with first-party tooling (dotnet CLI + gh) so we don't depend on third-party
-      # actions referenced by movable tags. Only runs on *main branches, and only when
-      # the version in Directory.Build.props isn't already on NuGet (idempotent).
-
       - name: Read package version
         id: version
         run: |
