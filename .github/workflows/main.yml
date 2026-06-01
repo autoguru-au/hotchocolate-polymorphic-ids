@@ -13,15 +13,17 @@ on:
 
 env:
   VERSION_FILE_PATH: src/Directory.Build.props
-  NUGET_KEY: ${{ secrets.NUGET_KEY }}
-  TAG_COMMIT: false
+  PROJECT_FILE_PATH: src/AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj
+  PACKAGE_ID: AutoGuru.HotChocolate.PolymorphicIds
 jobs:
   test_and_publish_if_allowed:
     name: test and publish if allowed
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to push the version tag and create the GitHub release
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
@@ -31,7 +33,7 @@ jobs:
 
       - name: Run tests
         run: dotnet test src/ --collect:"XPlat Code Coverage"
-        
+
       - name: Publish code coverage
         uses: codecov/codecov-action@v3
         with:
@@ -39,22 +41,60 @@ jobs:
           flags: integration
           files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
 
-      - name: Publish to NuGet on version change
-        if: ${{ endsWith(github.ref, 'main') }}
-        id: publish_nuget
-        uses: rohith/publish-nuget@v2.5.5
-        with:
-          PROJECT_FILE_PATH: src/AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj
-          TAG_COMMIT: true
-          
-      - name: Create Release
-        if: ${{ success() && steps.publish_nuget.outputs.VERSION }}
-        id: create_release
-        uses: actions/create-release@latest
+      # --- Publish: pack -> push to NuGet -> tag + GitHub release ---
+      # Replaces the former rohith/publish-nuget and actions/create-release actions
+      # with first-party tooling (dotnet CLI + gh) so we don't depend on third-party
+      # actions referenced by movable tags. Only runs on *main branches, and only when
+      # the version in Directory.Build.props isn't already on NuGet (idempotent).
+
+      - name: Read package version
+        id: version
+        run: |
+          version=$(grep -oPm1 '(?<=<Version>)[^<]+' "$VERSION_FILE_PATH")
+          if [ -z "$version" ]; then
+            echo "::error::Could not read <Version> from $VERSION_FILE_PATH"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Detected version: $version"
+
+      - name: Check whether version is already on NuGet
+        id: check
+        run: |
+          id_lower=$(echo "$PACKAGE_ID" | tr '[:upper:]' '[:lower:]')
+          versions=$(curl -fsSL "https://api.nuget.org/v3-flatcontainer/${id_lower}/index.json" || echo '{"versions":[]}')
+          if echo "$versions" | grep -q "\"${{ steps.version.outputs.version }}\""; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+            echo "Version ${{ steps.version.outputs.version }} is already published; nothing to do."
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            echo "Version ${{ steps.version.outputs.version }} is new."
+          fi
+
+      - name: Pack
+        if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
+        run: dotnet pack "$PROJECT_FILE_PATH" -c Release -o artifacts
+
+      - name: Push to NuGet
+        if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
+        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_KEY" --skip-duplicate
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.publish_nuget.outputs.VERSION }}
-          release_name: ${{ steps.publish_nuget.outputs.VERSION }}
-          draft: false
-          prerelease: ${{ contains(steps.publish_nuget.outputs.VERSION, 'preview') || contains(steps.publish_nuget.outputs.VERSION, 'rc') }}
+          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+
+      - name: Tag and create GitHub release
+        if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tag="v${VERSION}"
+          prerelease=""
+          case "$VERSION" in
+            *preview*|*rc*|*-*) prerelease="--prerelease" ;;
+          esac
+          # gh creates the tag at the target commit if it doesn't already exist.
+          gh release create "$tag" \
+            --target "$GITHUB_SHA" \
+            --title "$tag" \
+            --generate-notes \
+            $prerelease
