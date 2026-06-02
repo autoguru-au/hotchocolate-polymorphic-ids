@@ -5,7 +5,7 @@ using HotChocolate.Configuration;
 using HotChocolate.Internal;
 using HotChocolate.Types;
 using HotChocolate.Types.Descriptors;
-using HotChocolate.Types.Descriptors.Definitions;
+using HotChocolate.Types.Descriptors.Configurations;
 using HotChocolate.Types.Relay;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,8 +15,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
     {
         private const string StandardGlobalIdFormatterName = "GlobalIdInputValueFormatter";
 
-        // /src/HotChocolate/Core/src/Abstractions/WellKnownContextData.cs
-        private const string GlobalIdSupportEnabledContextDataKey = "HotChocolate.Relay.GlobalId";
+        // As of HC16, global ID support is tracked by an internal NodeSchemaFeature in the
+        // feature collection (rather than the old "HotChocolate.Relay.GlobalId" context-data
+        // key). We can't reference the internal type, so we detect it by name.
+        private const string NodeSchemaFeatureName = "NodeSchemaFeature";
 
         private PolymorphicIdsOptions? _options;
         private PolymorphicIdsOptions Options =>
@@ -24,10 +26,11 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
         public override void OnBeforeCompleteType(
             ITypeCompletionContext completionContext,
-            DefinitionBase definition)
+            TypeSystemConfiguration definition)
         {
-            var globalContextData = completionContext.ContextData;
-            if (!globalContextData.ContainsKey(GlobalIdSupportEnabledContextDataKey))
+            var globalIdSupportEnabled = completionContext.Features
+                .Any(f => f.Key.Name == NodeSchemaFeatureName);
+            if (!globalIdSupportEnabled)
             {
                 var error = SchemaErrorBuilder.New()
                     .SetMessage(
@@ -39,17 +42,14 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 throw new SchemaException(error);
             }
 
-            if (completionContext.ContextData.TryGetValue(
-                    typeof(PolymorphicIdsOptions).FullName!,
-                    out var o) &&
-                o is PolymorphicIdsOptions options)
+            if (completionContext.Features.Get<PolymorphicIdsOptions>() is { } options)
             {
                 _options = options;
             }
 
-            if (definition is InputObjectTypeDefinition inputObjectTypeDefinition)
+            if (definition is InputObjectTypeConfiguration inputObjectTypeConfiguration)
             {
-                foreach (var inputFieldDefinition in inputObjectTypeDefinition.Fields)
+                foreach (var inputFieldDefinition in inputObjectTypeConfiguration.Fields)
                 {
                     var idInfo = GetIdInfo(completionContext, inputFieldDefinition);
                     if (idInfo != null && ShouldIntercept(idInfo.Value.IdRuntimeType))
@@ -61,11 +61,11 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     }
                 }
             }
-            else if (definition is ObjectTypeDefinition objectTypeDefinition)
+            else if (definition is ObjectTypeConfiguration objectTypeConfiguration)
             {
                 var isQueryType = definition.Name == OperationTypeNames.Query;
 
-                foreach (var objectFieldDefinition in objectTypeDefinition.Fields)
+                foreach (var objectFieldDefinition in objectTypeConfiguration.Fields)
                 {
                     if (isQueryType && objectFieldDefinition.Name == "node")
                     {
@@ -94,24 +94,24 @@ namespace AutoGuru.HotChocolate.Types.Relay
         // BeforeCompletion configuration (appended after Hot Chocolate's) that runs in the same
         // phase, by which time the default formatter is present and can be replaced.
         private static void DeferFormatterReplacement(
-            ArgumentDefinition argumentDefinition,
+            ArgumentConfiguration argumentConfiguration,
             string typeName,
             Type idRuntimeType)
         {
-            argumentDefinition.Configurations.Add(
-                new CompleteConfiguration(
+            argumentConfiguration.Tasks.Add(
+                new OnCompleteTypeSystemConfigurationTask(
                     (completionContext, _) => InsertFormatter(
                         completionContext,
-                        argumentDefinition,
+                        argumentConfiguration,
                         typeName,
                         idRuntimeType),
-                    argumentDefinition,
+                    argumentConfiguration,
                     ApplyConfigurationOn.BeforeCompletion));
         }
 
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
-            ArgumentDefinition argumentDefinition,
+            ArgumentConfiguration argumentConfiguration,
             string typeName,
             Type idRuntimeType)
         {
@@ -120,7 +120,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 idRuntimeType,
                 completionContext.DescriptorContext.NodeIdSerializerAccessor);
 
-            var formatters = argumentDefinition.Formatters;
+            var formatters = argumentConfiguration.Formatters;
             var defaultFormatter = formatters
                 .FirstOrDefault(f => f.GetType().Name == StandardGlobalIdFormatterName);
 
@@ -169,13 +169,13 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
         private static (string NodeTypeName, Type IdRuntimeType)? GetIdInfo(
             ITypeCompletionContext completionContext,
-            ArgumentDefinition definition)
+            ArgumentConfiguration definition)
         {
             var typeInspector = completionContext.TypeInspector;
             IDAttribute? idAttribute = null;
             IExtendedType? idType = null;
 
-            if (definition is InputFieldDefinition inputField)
+            if (definition is InputFieldConfiguration inputField)
             {
                 // UseSorting arg/s seems to come in here with a null Property
                 if (inputField.Property == null)

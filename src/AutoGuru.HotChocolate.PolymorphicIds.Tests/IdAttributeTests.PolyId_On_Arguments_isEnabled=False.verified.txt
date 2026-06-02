@@ -2,192 +2,6 @@
   "errors": [
     {
       "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 9,
-          "column": 17
-        }
-      ],
-      "path": [
-        "intId"
-      ],
-      "extensions": {
-        "originalValue": "1"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 10,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableIntId"
-      ],
-      "extensions": {
-        "originalValue": "1"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 12,
-          "column": 17
-        }
-      ],
-      "path": [
-        "intIdList"
-      ],
-      "extensions": {
-        "originalValue": "1"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 13,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableIntIdList"
-      ],
-      "extensions": {
-        "originalValue": "1"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 15,
-          "column": 17
-        }
-      ],
-      "path": [
-        "longId"
-      ],
-      "extensions": {
-        "originalValue": "9223372036854775807"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 16,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableLongId"
-      ],
-      "extensions": {
-        "originalValue": "9223372036854775807"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 18,
-          "column": 17
-        }
-      ],
-      "path": [
-        "longIdList"
-      ],
-      "extensions": {
-        "originalValue": "9223372036854775807"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 19,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableLongIdList"
-      ],
-      "extensions": {
-        "originalValue": "9223372036854775807"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 21,
-          "column": 17
-        }
-      ],
-      "path": [
-        "stringId"
-      ],
-      "extensions": {
-        "originalValue": "abc"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 22,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableStringId"
-      ],
-      "extensions": {
-        "originalValue": "abc"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 24,
-          "column": 17
-        }
-      ],
-      "path": [
-        "stringIdList"
-      ],
-      "extensions": {
-        "originalValue": "abc"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 25,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableStringIdList"
-      ],
-      "extensions": {
-        "originalValue": "abc"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 27,
-          "column": 17
-        }
-      ],
       "path": [
         "guidId"
       ],
@@ -197,27 +11,6 @@
     },
     {
       "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 28,
-          "column": 17
-        }
-      ],
-      "path": [
-        "nullableGuidId"
-      ],
-      "extensions": {
-        "originalValue": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5"
-      }
-    },
-    {
-      "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 30,
-          "column": 17
-        }
-      ],
       "path": [
         "guidIdList"
       ],
@@ -227,17 +20,128 @@
     },
     {
       "message": "The node ID string has an invalid format.",
-      "locations": [
-        {
-          "line": 31,
-          "column": 17
-        }
+      "path": [
+        "intId"
       ],
+      "extensions": {
+        "originalValue": "1"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "intIdList"
+      ],
+      "extensions": {
+        "originalValue": "1"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "longId"
+      ],
+      "extensions": {
+        "originalValue": "9223372036854775807"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "longIdList"
+      ],
+      "extensions": {
+        "originalValue": "9223372036854775807"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableGuidId"
+      ],
+      "extensions": {
+        "originalValue": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
       "path": [
         "nullableGuidIdList"
       ],
       "extensions": {
         "originalValue": "26a2dc8f-4dab-408c-88c6-523a0a89a2b5"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableIntId"
+      ],
+      "extensions": {
+        "originalValue": "1"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableIntIdList"
+      ],
+      "extensions": {
+        "originalValue": "1"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableLongId"
+      ],
+      "extensions": {
+        "originalValue": "9223372036854775807"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableLongIdList"
+      ],
+      "extensions": {
+        "originalValue": "9223372036854775807"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableStringId"
+      ],
+      "extensions": {
+        "originalValue": "abc"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "nullableStringIdList"
+      ],
+      "extensions": {
+        "originalValue": "abc"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "stringId"
+      ],
+      "extensions": {
+        "originalValue": "abc"
+      }
+    },
+    {
+      "message": "The node ID string has an invalid format.",
+      "path": [
+        "stringIdList"
+      ],
+      "extensions": {
+        "originalValue": "abc"
       }
     }
   ],
