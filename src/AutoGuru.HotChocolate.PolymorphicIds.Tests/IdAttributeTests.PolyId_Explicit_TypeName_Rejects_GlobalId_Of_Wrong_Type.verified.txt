@@ -1,0 +1,17 @@
+﻿{
+  "errors": [
+    {
+      "message": "The ID `Tm90QVRoaW5nOjE=` is not an ID of `Thing`.",
+      "locations": [
+        {
+          "line": 1,
+          "column": 20
+        }
+      ],
+      "path": [
+        "thing"
+      ]
+    }
+  ],
+  "data": null
+}
