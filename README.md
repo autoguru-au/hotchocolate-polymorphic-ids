@@ -48,10 +48,18 @@ Arguments / input fields are noticed whether they're declared with the `[ID]` at
 fluent-style `.ID()` (e.g. `descriptor.Field(x => x.SomeId).ID()`); both have polymorphic id
 handling added.
 
-When a field declares an explicit type name (e.g. `[ID("Booking")]` or `.ID("Booking")`), an
+When a field declares an explicit type name **via the attribute** (e.g. `[ID("Booking")]`), an
 incoming *global* id is validated to actually belong to that type — a global id for a different
 type is rejected, just like Hot Chocolate's built-in behaviour. Raw database ids carry no type
 name, so they're always accepted (that's the whole point).
+
+> **Limitation:** this type-name validation is **not** applied to the fluent `.ID("Booking")`
+> form. Fluent ids are still fully handled (raw db ids and global ids both work), but the
+> explicit type name passed to `.ID(...)` isn't visible to us (Hot Chocolate keeps it inside its
+> own formatter), so a global id of the wrong type won't be rejected on a fluently-declared
+> field. Use the `[ID("Booking")]` attribute if you need that check. If you'd like this
+> supported for fluent fields too, give
+> [issue #16](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/issues/16) a 👍.
 
 Arrays of IDs are handled (but only v2+ can support arrays of nullable IDs (`[ID]` or `[ID]!`) due to a bug in Hot Chocolate v11).
 
