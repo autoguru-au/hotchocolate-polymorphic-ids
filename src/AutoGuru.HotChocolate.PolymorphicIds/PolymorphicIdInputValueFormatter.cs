@@ -8,20 +8,26 @@ namespace AutoGuru.HotChocolate.Types.Relay
 {
     internal sealed class PolymorphicIdInputValueFormatter : IInputValueFormatter
     {
-        private readonly string _nodeTypeName;
         private readonly Type _idRuntimeType;
         private readonly Type _underlyingIdRuntimeType;
+        private readonly string? _expectedTypeName;
         private readonly INodeIdSerializerAccessor _serializerAccessor;
         private INodeIdSerializer? _serializer;
 
+        /// <param name="expectedTypeName">
+        /// The node type name an incoming global id must decode to, or <c>null</c> to skip the
+        /// check. This is only set when the field declares an explicit type name (e.g.
+        /// <c>[ID("Booking")]</c>), mirroring Hot Chocolate's own type-name validation. Raw
+        /// (database) ids carry no type name and are always accepted.
+        /// </param>
         public PolymorphicIdInputValueFormatter(
-            string nodeTypeName,
             Type idRuntimeType,
+            string? expectedTypeName,
             INodeIdSerializerAccessor serializerAccessor)
         {
-            _nodeTypeName = nodeTypeName;
             _idRuntimeType = idRuntimeType;
             _underlyingIdRuntimeType = Nullable.GetUnderlyingType(idRuntimeType) ?? idRuntimeType;
+            _expectedTypeName = expectedTypeName;
             _serializerAccessor = serializerAccessor;
         }
 
@@ -74,6 +80,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             // Already an internal id (e.g. a NodeId produced upstream) - unwrap it.
             if (runtimeValue is NodeId nodeId)
             {
+                ValidateTypeName(nodeId.TypeName, nodeId.ToString());
                 return nodeId.InternalId;
             }
 
@@ -103,9 +110,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
             _serializer ??= _serializerAccessor.Serializer;
 
+            NodeId nodeId;
             try
             {
-                return _serializer.Parse(value, _underlyingIdRuntimeType).InternalId;
+                nodeId = _serializer.Parse(value, _underlyingIdRuntimeType);
             }
             catch
             {
@@ -116,12 +124,32 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 {
                     return value;
                 }
+
+                throw new GraphQLException(
+                    ErrorBuilder.New()
+                        .SetMessage("The ID `{0}` has an invalid format.", value)
+                        .Build());
             }
 
-            throw new GraphQLException(
-                ErrorBuilder.New()
-                    .SetMessage("The ID `{0}` has an invalid format.", value)
-                    .Build());
+            // It decoded to a valid global id - if the field declares an explicit type name,
+            // make sure the id actually belongs to that type (raw db ids never reach here).
+            ValidateTypeName(nodeId.TypeName, value);
+            return nodeId.InternalId;
+        }
+
+        private void ValidateTypeName(string actualTypeName, string formattedValue)
+        {
+            if (_expectedTypeName is not null &&
+                !string.Equals(actualTypeName, _expectedTypeName, StringComparison.Ordinal))
+            {
+                throw new GraphQLException(
+                    ErrorBuilder.New()
+                        .SetMessage(
+                            "The ID `{0}` is not an ID of `{1}`.",
+                            formattedValue,
+                            _expectedTypeName)
+                        .Build());
+            }
         }
     }
 }
