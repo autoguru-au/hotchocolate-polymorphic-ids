@@ -48,6 +48,11 @@ Arguments / input fields are noticed whether they're declared with the `[ID]` at
 fluent-style `.ID()` (e.g. `descriptor.Field(x => x.SomeId).ID()`); both have polymorphic id
 handling added.
 
+When a field declares an explicit type name (e.g. `[ID("Booking")]` or `.ID("Booking")`), an
+incoming *global* id is validated to actually belong to that type — a global id for a different
+type is rejected, just like Hot Chocolate's built-in behaviour. Raw database ids carry no type
+name, so they're always accepted (that's the whole point).
+
 Arrays of IDs are handled (but only v2+ can support arrays of nullable IDs (`[ID]` or `[ID]!`) due to a bug in Hot Chocolate v11).
 
 IDs that are internally represented with `int`, `Guid`, `long` or `string`, and their nullable equivalents will be handled. 

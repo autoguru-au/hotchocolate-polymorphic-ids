@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using AutoGuru.HotChocolate.Types.Relay;
+using HotChocolate;
 using HotChocolate.Types.Relay;
 using Shouldly;
 using Xunit;
@@ -13,8 +14,9 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             public INodeIdSerializer Serializer { get; } = new DefaultNodeIdSerializer();
         }
 
-        private static PolymorphicIdInputValueFormatter CreateSut(System.Type idRuntimeType) =>
-            new(idRuntimeType, new StubAccessor());
+        private static PolymorphicIdInputValueFormatter CreateSut(
+            System.Type idRuntimeType, string? expectedTypeName = null) =>
+            new(idRuntimeType, expectedTypeName, new StubAccessor());
 
         [Fact]
         public void Format_Null_Returns_Null()
@@ -71,6 +73,34 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 
             result.ShouldBeAssignableTo<int?[]>();
             ((int?[])result!).ShouldBe(new int?[] { 1, null, 2 });
+        }
+
+        [Fact]
+        public void Format_GlobalId_With_Matching_TypeName_Is_Accepted()
+        {
+            var globalId = new DefaultNodeIdSerializer().Format("Some", 7);
+            var sut = CreateSut(typeof(int), expectedTypeName: "Some");
+
+            sut.Format(globalId).ShouldBe(7);
+        }
+
+        [Fact]
+        public void Format_GlobalId_With_Wrong_TypeName_Throws()
+        {
+            var globalId = new DefaultNodeIdSerializer().Format("Other", 7);
+            var sut = CreateSut(typeof(int), expectedTypeName: "Some");
+
+            Should.Throw<GraphQLException>(() => sut.Format(globalId));
+        }
+
+        [Fact]
+        public void Format_RawId_Bypasses_TypeName_Validation()
+        {
+            // Raw db ids carry no type name, so they're accepted even when an explicit
+            // type name is expected (this is the whole point of the library).
+            var sut = CreateSut(typeof(int), expectedTypeName: "Some");
+
+            sut.Format("1").ShouldBe(1);
         }
     }
 }

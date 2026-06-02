@@ -296,6 +296,69 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 });
         }
 
+        // When a field declares an explicit type name (e.g. [ID("Thing")]), an incoming *global
+        // id* for a different type is rejected, matching Hot Chocolate's own type-name
+        // validation.
+        [Fact]
+        public async Task PolyId_Explicit_TypeName_Rejects_GlobalId_Of_Wrong_Type()
+        {
+            // arrange
+            var wrongTypeId = new DefaultNodeIdSerializer().Format("NotAThing", 1);
+
+            // act
+            var result =
+                await SchemaBuilder.New()
+                    .AddQueryType<TypeNameQuery>()
+                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddPolymorphicIds()
+                    .Create()
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        OperationRequestBuilder.New()
+                            .SetDocument(@"query ($id: ID!) { thing(id: $id) }")
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["id"] = wrongTypeId,
+                            })
+                            .Build());
+
+            // assert
+            await Verifier.Verify(result.ToJson());
+        }
+
+        // Raw database ids (no type name) and global ids of the matching type are both accepted.
+        [Fact]
+        public async Task PolyId_Explicit_TypeName_Accepts_RawId_And_MatchingType()
+        {
+            // arrange
+            var matchingTypeId = new DefaultNodeIdSerializer().Format("Thing", 1);
+
+            // act
+            var result =
+                await SchemaBuilder.New()
+                    .AddQueryType<TypeNameQuery>()
+                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddPolymorphicIds()
+                    .Create()
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        OperationRequestBuilder.New()
+                            .SetDocument(
+                                @"query ($raw: ID! $matching: ID!) {
+                                    byRawId: thing(id: $raw)
+                                    byMatchingTypeName: thing(id: $matching)
+                                }")
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["raw"] = "1",
+                                ["matching"] = matchingTypeId,
+                            })
+                            .Build());
+
+            // assert: both resolve to "1", no errors.
+            await Verifier.Verify(result.ToJson());
+        }
+
         #region Standard ID still works
 
         // NOTE: This exercises Hot Chocolate's built-in formatter (no AddPolymorphicIds).
@@ -680,6 +743,12 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             {
                 descriptor.Field(x => x.SomeId).Name("someIdCustomName").ID("Some");
             }
+        }
+
+        [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Can't be static for HC")]
+        public class TypeNameQuery
+        {
+            public string Thing([ID("Thing")] int id) => id.ToString();
         }
     }
 }

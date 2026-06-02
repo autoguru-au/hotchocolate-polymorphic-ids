@@ -51,10 +51,11 @@ namespace AutoGuru.HotChocolate.Types.Relay
             {
                 foreach (var inputFieldDefinition in inputObjectTypeConfiguration.Fields)
                 {
-                    var idRuntimeType = GetIdRuntimeType(completionContext, inputFieldDefinition);
-                    if (idRuntimeType is not null && ShouldIntercept(idRuntimeType))
+                    var idInfo = GetIdInfo(completionContext, inputFieldDefinition);
+                    if (idInfo is { } info && ShouldIntercept(info.RuntimeType))
                     {
-                        DeferFormatterReplacement(inputFieldDefinition, idRuntimeType);
+                        DeferFormatterReplacement(
+                            inputFieldDefinition, info.RuntimeType, info.ExpectedTypeName);
                     }
                 }
             }
@@ -71,10 +72,11 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
                     foreach (var argumentDefinition in objectFieldDefinition.Arguments)
                     {
-                        var idRuntimeType = GetIdRuntimeType(completionContext, argumentDefinition);
-                        if (idRuntimeType is not null && ShouldIntercept(idRuntimeType))
+                        var idInfo = GetIdInfo(completionContext, argumentDefinition);
+                        if (idInfo is { } info && ShouldIntercept(info.RuntimeType))
                         {
-                            DeferFormatterReplacement(argumentDefinition, idRuntimeType);
+                            DeferFormatterReplacement(
+                                argumentDefinition, info.RuntimeType, info.ExpectedTypeName);
                         }
                     }
                 }
@@ -89,14 +91,16 @@ namespace AutoGuru.HotChocolate.Types.Relay
         // phase, by which time the default formatter is present and can be replaced.
         private static void DeferFormatterReplacement(
             ArgumentConfiguration argumentConfiguration,
-            Type idRuntimeType)
+            Type idRuntimeType,
+            string? expectedTypeName)
         {
             argumentConfiguration.Tasks.Add(
                 new OnCompleteTypeSystemConfigurationTask(
                     (completionContext, _) => InsertFormatter(
                         completionContext,
                         argumentConfiguration,
-                        idRuntimeType),
+                        idRuntimeType,
+                        expectedTypeName),
                     argumentConfiguration,
                     ApplyConfigurationOn.BeforeCompletion));
         }
@@ -104,10 +108,12 @@ namespace AutoGuru.HotChocolate.Types.Relay
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
             ArgumentConfiguration argumentConfiguration,
-            Type idRuntimeType)
+            Type idRuntimeType,
+            string? expectedTypeName)
         {
             var formatter = new PolymorphicIdInputValueFormatter(
                 idRuntimeType,
+                expectedTypeName,
                 completionContext.DescriptorContext.NodeIdSerializerAccessor);
 
             var formatters = argumentConfiguration.Formatters;
@@ -157,18 +163,21 @@ namespace AutoGuru.HotChocolate.Types.Relay
             return true;
         }
 
-        // Resolves the CLR runtime type of an id field/argument, or null if it isn't a relay
-        // ID we should handle. A field is treated as a relay ID if it carries the [ID]
-        // attribute (attribute style) or its GraphQL type was rewritten to IdType - both the
-        // attribute and the fluent `.ID()` declaration do this before completion, which is how
-        // we now support fluent-style ids (see issue #5). The node type name is intentionally
-        // not needed: the serializer parses by runtime type, not type name.
-        private static Type? GetIdRuntimeType(
+        // Resolves the CLR runtime type of an id field/argument and the node type name it must
+        // validate against, or null if it isn't a relay ID we should handle. A field is treated
+        // as a relay ID if it carries the [ID] attribute (attribute style) or its GraphQL type
+        // was rewritten to IdType - both the attribute and the fluent `.ID()` declaration do
+        // this before completion, which is how we support fluent-style ids (see issue #5).
+        //
+        // ExpectedTypeName is only set when an explicit type name was declared (e.g.
+        // `[ID("Booking")]`), mirroring Hot Chocolate's own type-name validation; it's null for
+        // a bare `[ID]` (and for fluent ids, whose explicit name isn't reachable here).
+        private static (Type RuntimeType, string? ExpectedTypeName)? GetIdInfo(
             ITypeCompletionContext completionContext,
             ArgumentConfiguration definition)
         {
             var typeInspector = completionContext.TypeInspector;
-            bool hasIdAttribute;
+            IDAttribute? idAttribute;
             IExtendedType? idType;
 
             if (definition is InputFieldConfiguration inputField)
@@ -179,17 +188,19 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     return null;
                 }
 
-                hasIdAttribute = inputField.Property
+                idAttribute = inputField.Property
                     .GetCustomAttributes(inherit: true)
-                    .Any(a => a is IDAttribute);
+                    .OfType<IDAttribute>()
+                    .FirstOrDefault();
 
                 idType = typeInspector.GetReturnType(inputField.Property, true);
             }
             else if (definition.Parameter is not null)
             {
-                hasIdAttribute = definition.Parameter
+                idAttribute = definition.Parameter
                     .GetCustomAttributes(inherit: true)
-                    .Any(a => a is IDAttribute);
+                    .OfType<IDAttribute>()
+                    .FirstOrDefault();
 
                 idType = typeInspector.GetArgumentType(definition.Parameter, true);
             }
@@ -205,12 +216,13 @@ namespace AutoGuru.HotChocolate.Types.Relay
                 return null;
             }
 
-            if (!hasIdAttribute && !IsIdType(completionContext, definition))
+            if (idAttribute is null && !IsIdType(completionContext, definition))
             {
                 return null;
             }
 
-            return idType.ElementType?.Source ?? idType.Source;
+            var runtimeType = idType.ElementType?.Source ?? idType.Source;
+            return (runtimeType, idAttribute?.TypeName);
         }
 
         // True if the field/argument's (already rewritten) GraphQL type is the relay IdType.

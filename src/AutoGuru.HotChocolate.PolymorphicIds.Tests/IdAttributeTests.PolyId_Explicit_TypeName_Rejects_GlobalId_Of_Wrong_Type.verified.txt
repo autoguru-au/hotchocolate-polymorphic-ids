@@ -1,0 +1,11 @@
+﻿{
+  "errors": [
+    {
+      "message": "The ID `Tm90QVRoaW5nOjE=` is not an ID of `Thing`.",
+      "path": [
+        "thing"
+      ]
+    }
+  ],
+  "data": null
+}
