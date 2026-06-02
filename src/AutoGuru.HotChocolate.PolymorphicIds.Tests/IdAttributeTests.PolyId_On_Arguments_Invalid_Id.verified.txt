@@ -1,7 +1,11 @@
 ﻿{
   "errors": [
     {
-      "message": "The ID `SomethingInvalid` has an invalid format."
+      "message": "The ID `SomethingInvalid` has an invalid format.",
+      "path": [
+        "intId"
+      ]
     }
-  ]
+  ],
+  "data": null
 }

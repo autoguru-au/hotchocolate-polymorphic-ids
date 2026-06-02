@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="HotChocolate.Execution" Version="$(HotChocolateVersion)" />
+    <PackageReference Include="HotChocolate.Types" Version="$(HotChocolateVersion)" />
   </ItemGroup>
 
   <ItemGroup>

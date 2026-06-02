@@ -22,19 +22,20 @@ jobs:
     permissions:
       contents: write # to push the version tag and create the GitHub release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Run tests
         run: dotnet test src/ --collect:"XPlat Code Coverage"
 
       - name: Publish code coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integration

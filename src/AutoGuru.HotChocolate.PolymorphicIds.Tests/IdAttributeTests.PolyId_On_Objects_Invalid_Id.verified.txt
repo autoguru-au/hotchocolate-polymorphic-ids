@@ -2,12 +2,6 @@
   "errors": [
     {
       "message": "The IDs `SomethingInvalid` have an invalid format.",
-      "locations": [
-        {
-          "line": 2,
-          "column": 37
-        }
-      ],
       "path": [
         "foo"
       ]

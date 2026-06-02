@@ -100,15 +100,17 @@ if I can figure out how to get that to work (last attempt failed :P).
 
 ## Compatibility
 
-We depend on [HotChocolate.Execution](https://www.nuget.org/packages/HotChocolate.Execution)
-which can bring breaking changes from time to time and require a major bump our end.
-Compatibility is listed below.
+We depend on [HotChocolate.Types](https://www.nuget.org/packages/HotChocolate.Types)
+(previously [HotChocolate.Execution](https://www.nuget.org/packages/HotChocolate.Execution), which
+Hot Chocolate stopped publishing as a standalone package in v16) which can bring breaking changes
+from time to time and require a major bump our end. Compatibility is listed below.
 
 We strive to match Hot Chocolate's supported .NET target frameworks, though this might not always be possible.
 
 | HotChocolate | Polymorphic IDs | Our docs   |
 | ------------ | --------------- | -----------|
-|      v15.0.0 |              v6 | right here |
+|      v16.0.0 |              v7 | right here |
+|      v15.0.0 |              v6 | [/v6/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v6/main) branch |
 |      v14.0.0 |              v5 | [/v5/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v5/main) branch |
 |      v13.0.0 |              v4 | [/v4/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v4/main) branch |
 |     v12.6.0* |              v3 | [/v3/main](https://github.com/autoguru-au/hotchocolate-polymorphic-ids/tree/v3/main) branch |

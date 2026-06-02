@@ -1,6 +1,7 @@
 ﻿using System;
 using AutoGuru.HotChocolate.Types.Relay;
 using HotChocolate;
+using HotChocolate.Features;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -15,10 +16,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            options ??= new PolymorphicIdsOptions();
-            
+            // As of HC16 the string-keyed schema context data is replaced by the typed
+            // feature collection, so we stash the options as a feature keyed by their type.
+            builder.Features.Set(options ?? new PolymorphicIdsOptions());
+
             return builder
-                .SetContextData(typeof(PolymorphicIdsOptions).FullName!, options)
                 .TryAddTypeInterceptor<PolymorphicIdsTypeInterceptor>();
         }
     }
