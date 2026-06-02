@@ -8,18 +8,15 @@ namespace AutoGuru.HotChocolate.Types.Relay
 {
     internal sealed class PolymorphicIdInputValueFormatter : IInputValueFormatter
     {
-        private readonly string _nodeTypeName;
         private readonly Type _idRuntimeType;
         private readonly Type _underlyingIdRuntimeType;
         private readonly INodeIdSerializerAccessor _serializerAccessor;
         private INodeIdSerializer? _serializer;
 
         public PolymorphicIdInputValueFormatter(
-            string nodeTypeName,
             Type idRuntimeType,
             INodeIdSerializerAccessor serializerAccessor)
         {
-            _nodeTypeName = nodeTypeName;
             _idRuntimeType = idRuntimeType;
             _underlyingIdRuntimeType = Nullable.GetUnderlyingType(idRuntimeType) ?? idRuntimeType;
             _serializerAccessor = serializerAccessor;

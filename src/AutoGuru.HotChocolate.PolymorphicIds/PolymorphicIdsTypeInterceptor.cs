@@ -51,13 +51,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
             {
                 foreach (var inputFieldDefinition in inputObjectTypeConfiguration.Fields)
                 {
-                    var idInfo = GetIdInfo(completionContext, inputFieldDefinition);
-                    if (idInfo != null && ShouldIntercept(idInfo.Value.IdRuntimeType))
+                    var idRuntimeType = GetIdRuntimeType(completionContext, inputFieldDefinition);
+                    if (idRuntimeType is not null && ShouldIntercept(idRuntimeType))
                     {
-                        DeferFormatterReplacement(
-                            inputFieldDefinition,
-                            idInfo.Value.NodeTypeName,
-                            idInfo.Value.IdRuntimeType);
+                        DeferFormatterReplacement(inputFieldDefinition, idRuntimeType);
                     }
                 }
             }
@@ -74,13 +71,10 @@ namespace AutoGuru.HotChocolate.Types.Relay
 
                     foreach (var argumentDefinition in objectFieldDefinition.Arguments)
                     {
-                        var idInfo = GetIdInfo(completionContext, argumentDefinition);
-                        if (idInfo != null && ShouldIntercept(idInfo.Value.IdRuntimeType))
+                        var idRuntimeType = GetIdRuntimeType(completionContext, argumentDefinition);
+                        if (idRuntimeType is not null && ShouldIntercept(idRuntimeType))
                         {
-                            DeferFormatterReplacement(
-                                argumentDefinition,
-                                idInfo.Value.NodeTypeName,
-                                idInfo.Value.IdRuntimeType);
+                            DeferFormatterReplacement(argumentDefinition, idRuntimeType);
                         }
                     }
                 }
@@ -95,7 +89,6 @@ namespace AutoGuru.HotChocolate.Types.Relay
         // phase, by which time the default formatter is present and can be replaced.
         private static void DeferFormatterReplacement(
             ArgumentConfiguration argumentConfiguration,
-            string typeName,
             Type idRuntimeType)
         {
             argumentConfiguration.Tasks.Add(
@@ -103,7 +96,6 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     (completionContext, _) => InsertFormatter(
                         completionContext,
                         argumentConfiguration,
-                        typeName,
                         idRuntimeType),
                     argumentConfiguration,
                     ApplyConfigurationOn.BeforeCompletion));
@@ -112,11 +104,9 @@ namespace AutoGuru.HotChocolate.Types.Relay
         private static void InsertFormatter(
             ITypeCompletionContext completionContext,
             ArgumentConfiguration argumentConfiguration,
-            string typeName,
             Type idRuntimeType)
         {
             var formatter = new PolymorphicIdInputValueFormatter(
-                typeName,
                 idRuntimeType,
                 completionContext.DescriptorContext.NodeIdSerializerAccessor);
 
@@ -167,70 +157,69 @@ namespace AutoGuru.HotChocolate.Types.Relay
             return true;
         }
 
-        private static (string NodeTypeName, Type IdRuntimeType)? GetIdInfo(
+        // Resolves the CLR runtime type of an id field/argument, or null if it isn't a relay
+        // ID we should handle. A field is treated as a relay ID if it carries the [ID]
+        // attribute (attribute style) or its GraphQL type was rewritten to IdType - both the
+        // attribute and the fluent `.ID()` declaration do this before completion, which is how
+        // we now support fluent-style ids (see issue #5). The node type name is intentionally
+        // not needed: the serializer parses by runtime type, not type name.
+        private static Type? GetIdRuntimeType(
             ITypeCompletionContext completionContext,
             ArgumentConfiguration definition)
         {
             var typeInspector = completionContext.TypeInspector;
-            IDAttribute? idAttribute = null;
-            IExtendedType? idType = null;
+            bool hasIdAttribute;
+            IExtendedType? idType;
 
             if (definition is InputFieldConfiguration inputField)
             {
                 // UseSorting arg/s seems to come in here with a null Property
-                if (inputField.Property == null)
+                if (inputField.Property is null)
                 {
                     return null;
                 }
 
-                idAttribute = (IDAttribute?)inputField.Property
-                   .GetCustomAttributes(inherit: true)
-                   .SingleOrDefault(a => a is IDAttribute);
-                if (idAttribute == null)
-                {
-                    return null;
-                }
+                hasIdAttribute = inputField.Property
+                    .GetCustomAttributes(inherit: true)
+                    .Any(a => a is IDAttribute);
 
                 idType = typeInspector.GetReturnType(inputField.Property, true);
             }
             else if (definition.Parameter is not null)
             {
-                idAttribute = (IDAttribute?)definition.Parameter
+                hasIdAttribute = definition.Parameter
                     .GetCustomAttributes(inherit: true)
-                    .SingleOrDefault(a => a is IDAttribute);
-                if (idAttribute == null)
-                {
-                    return null;
-                }
+                    .Any(a => a is IDAttribute);
 
                 idType = typeInspector.GetArgumentType(definition.Parameter, true);
             }
-            else if (definition.Type is ExtendedTypeReference typeReference)
+            else
             {
-                if (typeReference.Type.Kind == ExtendedTypeKind.Schema)
-                {
-                    return null;
-                }
+                // Purely code-first fields/args with no backing CLR member: we can't determine
+                // the runtime id type, so there's nothing for us to convert.
+                return null;
             }
-            else if (definition.Type is SyntaxTypeReference syntaxTypeReference)
+
+            if (idType is null)
             {
                 return null;
             }
 
-            if (idAttribute is null || idType is null)
+            if (!hasIdAttribute && !IsIdType(completionContext, definition))
             {
-                throw new SchemaException(SchemaErrorBuilder.New()
-                    .SetMessage("Unable to resolve type from field `{0}`.", definition.Name)
-                    .SetTypeSystemObject(completionContext.Type)
-                    .Build());
+                return null;
             }
 
-            var idRuntimeType = idType.ElementType?.Source ?? idType.Source;
-            var nodeTypeName = idAttribute?.TypeName != null
-                ? idAttribute.TypeName
-                : completionContext.Type.Name;
-
-            return (nodeTypeName, idRuntimeType);
+            return idType.ElementType?.Source ?? idType.Source;
         }
+
+        // True if the field/argument's (already rewritten) GraphQL type is the relay IdType.
+        // Both [ID] and the fluent `.ID()` rewrite the type to IdType before completion.
+        private static bool IsIdType(
+            ITypeCompletionContext completionContext,
+            ArgumentConfiguration definition)
+            => definition.Type is ExtendedTypeReference typeReference
+                && completionContext.TypeInspector
+                    .CreateTypeInfo(typeReference.Type).NamedType == typeof(IdType);
     }
 }

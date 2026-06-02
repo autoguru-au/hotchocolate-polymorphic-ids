@@ -253,8 +253,11 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
             await Verifier.Verify(result.ToJson());
         }
 
-        [Fact(Skip = "WIP, not yet supported")]
-        public async Task PolyId_On_Objects_Invalid_Id_FluentStyle()
+        // Fluent-style `.ID()` (rather than the [ID] attribute) is now supported - see issue #5.
+        // LolInputType configures `someIdCustomName` as an ID via descriptor.Field(...).ID("Some"),
+        // so a raw database id ("1") should be accepted polymorphically just like an attribute ID.
+        [Fact]
+        public async Task PolyId_On_Objects_FluentStyle()
         {
             // arrange
             var someId = "1";

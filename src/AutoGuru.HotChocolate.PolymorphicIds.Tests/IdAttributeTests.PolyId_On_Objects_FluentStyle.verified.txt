@@ -1,0 +1,60 @@
+﻿{
+  schema:
+schema {
+  query: Query
+}
+
+type Query {
+  intId(id: ID!): String!
+  intIdList(id: [ID!]!): String!
+  nullableIntId(id: ID): String!
+  nullableIntIdList(id: [ID]!): String!
+  longId(id: ID!): String!
+  longIdList(id: [ID!]!): String!
+  nullableLongId(id: ID): String!
+  nullableLongIdList(id: [ID]!): String!
+  stringId(id: ID!): String!
+  stringIdList(id: [ID!]!): String!
+  nullableStringId(id: ID): String!
+  nullableStringIdList(id: [ID]!): String!
+  guidId(id: ID!): String!
+  guidIdList(id: [ID!]!): String!
+  nullableGuidId(id: ID): String!
+  nullableGuidIdList(id: [ID]!): String!
+  foo(input: FooInput!): IFooPayload!
+  lol(input: LolInput!): Int!
+}
+
+type FooPayload implements IFooPayload {
+  someId: ID!
+  someIds: [ID!]!
+  someNullableId: ID
+  someNullableIds: [ID]
+  raw: String!
+}
+
+interface IFooPayload {
+  someId: ID!
+  someNullableId: ID
+  someIds: [ID!]!
+  someNullableIds: [ID]
+  raw: String!
+}
+
+input FooInput {
+  someId: ID!
+  someNullableId: ID
+  someIds: [ID!]!
+  someNullableIds: [ID]
+}
+
+input LolInput {
+  someIdCustomName: ID!
+},
+  result:
+{
+  "data": {
+    "lol": 1
+  }
+}
+}

@@ -14,7 +14,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         }
 
         private static PolymorphicIdInputValueFormatter CreateSut(System.Type idRuntimeType) =>
-            new("Some", idRuntimeType, new StubAccessor());
+            new(idRuntimeType, new StubAccessor());
 
         [Fact]
         public void Format_Null_Returns_Null()
