@@ -296,6 +296,36 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                 });
         }
 
+        // [GraphQLType(typeof(IdType))] (NOT [ID] and NOT fluent .ID()) is the deliberate opt-out:
+        // the field is an ID in the SDL, but the resolver must receive the value verbatim - the
+        // global-id formatter must not decode it. Supporting fluent .ID() broadened interception to
+        // every IdType-typed field, which wrongly captured this opt-out; this pins that it doesn't.
+        [Fact]
+        public async Task PolyId_DoesNotIntercept_BareIdTypeScalar_OptOut()
+        {
+            // A global id that, if the formatter ran, would be decoded to its inner value ("raw-123").
+            var globalId = new DefaultNodeIdSerializer().Format("Whatever", "raw-123");
+
+            var result =
+                await SchemaBuilder.New()
+                    .AddQueryType<OptOutQuery>()
+                    .AddGlobalObjectIdentification(registerNodeInterface: false)
+                    .AddPolymorphicIds()
+                    .Create()
+                    .MakeExecutable(_executorOptions)
+                    .ExecuteAsync(
+                        OperationRequestBuilder.New()
+                            .SetDocument(@"query ($id: ID!) { opaqueId(id: $id) }")
+                            .SetVariableValues(new Dictionary<string, object?>
+                            {
+                                ["id"] = globalId,
+                            })
+                            .Build());
+
+            // The resolver received the whole id verbatim (it was NOT decoded to "raw-123").
+            result.ToJson().ShouldContain(globalId);
+        }
+
         // When a field declares an explicit type name (e.g. [ID("Thing")]), an incoming *global
         // id* for a different type is rejected, matching Hot Chocolate's own type-name
         // validation.
@@ -749,6 +779,13 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
         public class TypeNameQuery
         {
             public string Thing([ID("Thing")] int id) => id.ToString();
+        }
+
+        public class OptOutQuery
+        {
+            // The opt-out: ID in the SDL via [GraphQLType(typeof(IdType))], but NOT [ID]/.ID(), so the
+            // polymorphic/global-id formatter must NOT run and the resolver receives the value verbatim.
+            public string OpaqueId([GraphQLType(typeof(IdType))] string id) => id;
         }
     }
 }
