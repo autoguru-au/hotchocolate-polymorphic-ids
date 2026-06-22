@@ -55,7 +55,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
                     if (idInfo is { } info && ShouldIntercept(info.RuntimeType))
                     {
                         DeferFormatterReplacement(
-                            inputFieldDefinition, info.RuntimeType, info.ExpectedTypeName);
+                            inputFieldDefinition, info.RuntimeType, info.ExpectedTypeName, info.FromIdAttribute);
                     }
                 }
             }
@@ -76,7 +76,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
                         if (idInfo is { } info && ShouldIntercept(info.RuntimeType))
                         {
                             DeferFormatterReplacement(
-                                argumentDefinition, info.RuntimeType, info.ExpectedTypeName);
+                                argumentDefinition, info.RuntimeType, info.ExpectedTypeName, info.FromIdAttribute);
                         }
                     }
                 }
@@ -92,7 +92,8 @@ namespace AutoGuru.HotChocolate.Types.Relay
         private static void DeferFormatterReplacement(
             ArgumentConfiguration argumentConfiguration,
             Type idRuntimeType,
-            string? expectedTypeName)
+            string? expectedTypeName,
+            bool fromIdAttribute)
         {
             argumentConfiguration.Tasks.Add(
                 new OnCompleteTypeSystemConfigurationTask(
@@ -100,7 +101,8 @@ namespace AutoGuru.HotChocolate.Types.Relay
                         completionContext,
                         argumentConfiguration,
                         idRuntimeType,
-                        expectedTypeName),
+                        expectedTypeName,
+                        fromIdAttribute),
                     argumentConfiguration,
                     ApplyConfigurationOn.BeforeCompletion));
         }
@@ -109,16 +111,29 @@ namespace AutoGuru.HotChocolate.Types.Relay
             ITypeCompletionContext completionContext,
             ArgumentConfiguration argumentConfiguration,
             Type idRuntimeType,
-            string? expectedTypeName)
+            string? expectedTypeName,
+            bool fromIdAttribute)
         {
+            var formatters = argumentConfiguration.Formatters;
+            var defaultFormatter = formatters
+                .FirstOrDefault(f => f.GetType().Name == StandardGlobalIdFormatterName);
+
+            // A field whose GraphQL type is IdType but which Hot Chocolate did NOT wire as a relay id
+            // (no GlobalIdInputValueFormatter present here, in BeforeCompletion) is the deliberate
+            // `[GraphQLType(typeof(IdType))]` opt-out: "ID in the SDL, but hand me the raw value, don't
+            // run the global-id formatter". We must leave it untouched. Only `[ID]`/`.ID()` relay ids
+            // get HC's formatter, so an absent default formatter on a non-attribute match means the
+            // opt-out — skip it. (Before .ID() support this branch only ever saw [ID] attributes, so it
+            // always inserted; matching any IdType-typed field broadened it and broke the opt-out.)
+            if (defaultFormatter is null && !fromIdAttribute)
+            {
+                return;
+            }
+
             var formatter = new PolymorphicIdInputValueFormatter(
                 idRuntimeType,
                 expectedTypeName,
                 completionContext.DescriptorContext.NodeIdSerializerAccessor);
-
-            var formatters = argumentConfiguration.Formatters;
-            var defaultFormatter = formatters
-                .FirstOrDefault(f => f.GetType().Name == StandardGlobalIdFormatterName);
 
             if (defaultFormatter is null)
             {
@@ -172,7 +187,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
         // ExpectedTypeName is only set when an explicit type name was declared (e.g.
         // `[ID("Booking")]`), mirroring Hot Chocolate's own type-name validation; it's null for
         // a bare `[ID]` (and for fluent ids, whose explicit name isn't reachable here).
-        private static (Type RuntimeType, string? ExpectedTypeName)? GetIdInfo(
+        private static (Type RuntimeType, string? ExpectedTypeName, bool FromIdAttribute)? GetIdInfo(
             ITypeCompletionContext completionContext,
             ArgumentConfiguration definition)
         {
@@ -222,7 +237,7 @@ namespace AutoGuru.HotChocolate.Types.Relay
             }
 
             var runtimeType = idType.ElementType?.Source ?? idType.Source;
-            return (runtimeType, idAttribute?.TypeName);
+            return (runtimeType, idAttribute?.TypeName, idAttribute is not null);
         }
 
         // True if the field/argument's (already rewritten) GraphQL type is the relay IdType.
