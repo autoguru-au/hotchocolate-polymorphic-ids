@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+# The job only reads the repository; the repository default token is write.
+permissions:
+  contents: read
+
 jobs:
   sonarqube:
     uses: ./.github/workflows/sonarqube-dotnet.yml
@@ -13,4 +17,6 @@ jobs:
       enable_tests: true
       # Larger runners are not available to public repositories.
       runs_on: ubuntu-latest
-    secrets: inherit
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
