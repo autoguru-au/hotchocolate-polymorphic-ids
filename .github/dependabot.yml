@@ -1,0 +1,34 @@
+version: 2
+updates:
+    - package-ecosystem: 'nuget'
+      directories:
+          - '/src/AutoGuru.HotChocolate.PolymorphicIds'
+          - '/src/AutoGuru.HotChocolate.PolymorphicIds.Tests'
+      schedule:
+          interval: 'weekly'
+          day: 'monday'
+          time: '06:00'
+          timezone: 'Australia/Brisbane'
+      labels:
+          - 'dependencies'
+      open-pull-requests-limit: 5
+      groups:
+          patch-and-minor:
+              update-types:
+                  - 'minor'
+                  - 'patch'
+    - package-ecosystem: 'github-actions'
+      directory: '/'
+      schedule:
+          interval: 'weekly'
+          day: 'monday'
+          time: '06:00'
+          timezone: 'Australia/Brisbane'
+      labels:
+          - 'dependencies'
+      open-pull-requests-limit: 5
+      groups:
+          patch-and-minor:
+              update-types:
+                  - 'minor'
+                  - 'patch'
