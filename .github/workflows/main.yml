@@ -21,6 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # to push the version tag and create the GitHub release
+      id-token: write # to exchange a GitHub OIDC token for a short-lived NuGet API key
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -73,11 +74,18 @@ jobs:
         if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
         run: dotnet pack "$PROJECT_FILE_PATH" -c Release -o artifacts
 
+      # Trusted publishing: nuget.org matches the OIDC token against a policy for this
+      # repo and workflow file, and returns an API key that lasts an hour.
+      - name: NuGet login
+        id: nuget
+        if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Push to NuGet
         if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
-        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_KEY" --skip-duplicate
-        env:
-          NUGET_KEY: ${{ secrets.NUGET_KEY }}
+        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "${{ steps.nuget.outputs.NUGET_API_KEY }}" --skip-duplicate
 
       - name: Tag and create GitHub release
         if: ${{ endsWith(github.ref, 'main') && steps.check.outputs.published == 'false' }}
