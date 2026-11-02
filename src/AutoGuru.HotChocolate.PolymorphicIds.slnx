@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/.Solution Items/">
+    <File Path="../.github/workflows/main.yml" />
+    <File Path="../README.md" />
+    <File Path="../global.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Project Path="AutoGuru.HotChocolate.PolymorphicIds.Tests/AutoGuru.HotChocolate.PolymorphicIds.Tests.csproj" />
+  <Project Path="AutoGuru.HotChocolate.PolymorphicIds/AutoGuru.HotChocolate.PolymorphicIds.csproj" />
+</Solution>
