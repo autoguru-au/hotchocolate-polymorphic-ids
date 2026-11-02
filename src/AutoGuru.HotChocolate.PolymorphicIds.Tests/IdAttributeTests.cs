@@ -16,7 +16,6 @@ using Xunit;
 
 namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
 {
-    [UsesVerify]
     [SuppressMessage("Style", "IDE1006:Naming Styles")]
     public class IdAttributeTests
     {
@@ -102,7 +101,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                     })
                 .ModifyRequestOptions(o => o.ExecutionTimeout = TimeSpan.FromMinutes(1));
             var executor = await builder
-                .BuildRequestExecutorAsync();
+                .BuildRequestExecutorAsync(cancellationToken: TestContext.Current.CancellationToken);
 
             // act
             var result = await executor
@@ -116,7 +115,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             ["stringId"] = stringId,
                             ["guidId"] = guidId.ToString(),
                         })
-                        .Build());
+                        .Build(), TestContext.Current.CancellationToken);
 
             // assert
             var verifySettings = new VerifySettings();
@@ -145,7 +144,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 @"query foo {
                                     intId(id: ""SomethingInvalid"")
                                 }")
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -202,7 +201,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 ["someId"] = someId,
                                 ["someIntId"] = someIntId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             var verifySettings = new VerifySettings();
@@ -247,7 +246,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             {
                                 ["someId"] = someId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -285,7 +284,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             {
                                 ["someId"] = someId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(
@@ -320,7 +319,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             {
                                 ["id"] = globalId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // The resolver received the whole id verbatim (it was NOT decoded to "raw-123").
             result.ToJson().ShouldContain(globalId);
@@ -350,7 +349,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             {
                                 ["id"] = wrongTypeId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -383,7 +382,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 ["raw"] = "1",
                                 ["matching"] = matchingTypeId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert: both resolve to "1", no errors.
             await Verifier.Verify(result.ToJson());
@@ -428,7 +427,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 ["stringId"] = stringId,
                                 ["guidId"] = guidId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(result.ToJson());
@@ -474,7 +473,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 ["someId"] = someId,
                                 ["someIntId"] = someIntId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(new
@@ -531,7 +530,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                                 ["someId"] = someId,
                                 ["someIntId"] = someIntId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(new
@@ -572,7 +571,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                             {
                                 ["someId"] = someId,
                             })
-                            .Build());
+                            .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(new
@@ -614,7 +613,7 @@ namespace AutoGuru.HotChocolate.PolymorphicIds.Tests
                         {
                             ["someId"] = someId,
                         })
-                        .Build());
+                        .Build(), TestContext.Current.CancellationToken);
 
             // assert
             await Verifier.Verify(new

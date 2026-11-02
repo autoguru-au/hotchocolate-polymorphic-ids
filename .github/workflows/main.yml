@@ -22,9 +22,10 @@ jobs:
     permissions:
       contents: write # to push the version tag and create the GitHub release
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-dotnet@v5
+      # 8 and 9 are installed for their runtimes: the tests run once per target framework.
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             8.0.x
@@ -32,14 +33,17 @@ jobs:
             10.0.x
 
       - name: Run tests
-        run: dotnet test src/ --collect:"XPlat Code Coverage"
+        run: >-
+          dotnet test --solution src/AutoGuru.HotChocolate.PolymorphicIds.slnx
+          --coverage --coverage-output-format cobertura
+          --results-directory "$GITHUB_WORKSPACE/TestResults"
 
       - name: Publish code coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: integration
-          files: src/AutoGuru.HotChocolate.PolymorphicIds.Tests/TestResults/*/coverage.cobertura.xml
+          files: TestResults/*.cobertura.xml
 
       - name: Read package version
         id: version
