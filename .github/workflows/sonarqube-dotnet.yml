@@ -1,5 +1,7 @@
 # Vendored copy of autoguru-au/devsecops/.github/workflows/sonarqube-dotnet.yml@f3f1f1cf54a1e637b5d8097ed7e9b1c49bd4d162 (COM-108).
 # devsecops is private and GitHub does not let public repositories call its reusable workflows.
+# Local change: tests run on Microsoft Testing Platform (xUnit v3), so coverage comes from
+# Microsoft.Testing.Extensions.CodeCoverage instead of coverlet + VSTest arguments.
 name: SonarQube Analysis (.NET)
 
 on:
@@ -101,10 +103,6 @@ jobs:
       - name: Install Sonar Scanner
         run: dotnet tool install --global dotnet-sonarscanner
 
-      - name: Install Coverlet.Console
-        if: inputs.enable_tests == true
-        run: dotnet tool install --global coverlet.console
-
       # Detect Solution File: .slnx is preferred; .sln is still accepted because the
       # public callers (kv-push, hotchocolate-polymorphic-ids) have not migrated.
       - name: Detect Solution File
@@ -159,16 +157,14 @@ jobs:
             echo "❌ No test project found! Skipping tests."
             exit 1
           fi
-          TEST_DLL=$(find ./ -name '*.dll' | grep -E '/bin/Debug/net[0-9]+\.[0-9]+/' | grep 'Test' | head -n 1)
-          if [ -z "$TEST_DLL" ]; then
-            echo "❌ No test DLL found! Skipping coverage."
-            exit 1
-          fi
-          coverlet $TEST_DLL \
-            --target "dotnet" \
-            --targetargs "test $TEST_PROJECT --no-build --logger trx --results-directory ./TestResults/" \
-            --output ./TestResults/Coverage/coverage.opencover.xml \
-            --format opencover
+          # Microsoft Testing Platform: VSTest arguments such as `--logger trx` make it run
+          # zero tests, and coverlet instrumented no modules. The test project
+          # references Microsoft.Testing.Extensions.CodeCoverage, which writes one VS XML
+          # coverage report per target framework.
+          dotnet test --project "$TEST_PROJECT" --no-build \
+            --results-directory "$GITHUB_WORKSPACE/TestResults/Coverage" \
+            --report-xunit-trx \
+            --coverage --coverage-output-format xml
 
       - name: Upload Test Results
         if: inputs.enable_tests == true
@@ -187,7 +183,7 @@ jobs:
             /k:"${{ github.event.repository.name }}" \
             /n:"${{ github.event.repository.name }}" \
             /v:"${{ github.sha }}" \
-            /d:sonar.cs.opencover.reportsPaths="./TestResults/Coverage/coverage.opencover.xml" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="TestResults/Coverage/*.xml" \
             /d:sonar.inclusions="**/*.cs" \
             /d:sonar.exclusions="**/bin/**,**/obj/**" \
             /d:sonar.verbose=true \
